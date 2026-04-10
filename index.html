@@ -249,28 +249,47 @@ nav{
 .cal-event-item:last-child{border-bottom:none}
 
 /* ── TODO ── */
-.todo-input-row{display:flex;gap:8px;margin-bottom:18px}
+.todo-input-row{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
 .todo-input{
-  flex:1;background:var(--surface2);border:1px solid var(--border);
+  flex:1;min-width:160px;background:var(--surface2);border:1px solid var(--border);
   border-radius:8px;padding:10px 16px;color:var(--text);font-family:var(--font);
   font-size:.9rem;outline:none;transition:border-color .2s;
 }
 .todo-input:focus{border-color:rgba(88,166,255,0.3)}
+.todo-date-pick{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;color:var(--text2);font-family:var(--font);
+  font-size:.85rem;outline:none;cursor:pointer;transition:border-color .2s;
+  color-scheme:dark;
+}
+.todo-date-pick:focus{border-color:rgba(88,166,255,0.3)}
+.todo-group-label{
+  font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+  color:var(--text3);margin:18px 0 8px;display:flex;align-items:center;gap:8px;
+}
+.todo-group-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.todo-group-label.overdue-label{color:var(--red);opacity:.8}
+.todo-group-label.upcoming-label{color:var(--accent);opacity:.7}
 .todo-list{display:flex;flex-direction:column;gap:6px}
 .todo-item{
   display:flex;align-items:center;gap:12px;
   background:var(--surface);border:1px solid var(--border);
   border-radius:8px;padding:12px 16px;transition:opacity .2s;
 }
-.todo-item.done{opacity:.38}
+.todo-item.done{opacity:.35}
 .todo-item.done .todo-text{text-decoration:line-through;color:var(--text2)}
+.todo-item.overdue{border-color:rgba(247,129,102,0.2);background:rgba(247,129,102,0.04)}
+.todo-item.upcoming{border-color:rgba(88,166,255,0.15);background:rgba(88,166,255,0.03)}
 .todo-check{
   width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
   cursor:pointer;flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center;
 }
 .todo-check.checked{background:var(--green);border-color:var(--green)}
 .todo-check.checked::after{content:'✓';color:#fff;font-size:11px}
+.todo-check.overdue-check{border-color:rgba(247,129,102,0.5)}
 .todo-text{flex:1;font-size:.9rem}
+.todo-meta{font-size:.7rem;color:var(--text3);white-space:nowrap}
+.todo-meta.overdue-meta{color:rgba(247,129,102,0.7)}
 .todo-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 4px;transition:color .15s}
 .todo-del:hover{color:var(--red)}
 .todo-empty{color:var(--text3);font-size:.875rem;text-align:center;padding:28px}
@@ -456,17 +475,18 @@ nav{
 <!-- ═══════════ TO-DO ═══════════ -->
 <div class="page" id="page-todo">
   <div class="page-inner">
-    <div class="page-title">Daily To-Do</div>
+    <div class="page-title">To-Do</div>
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-        <span style="font-size:.78rem;color:var(--text3)" id="todo-date-label"></span>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+        <span style="font-size:.78rem;color:var(--text3)">Tasks persist until manually deleted · overdue tasks carry forward</span>
         <button class="btn btn-danger" id="btn-clear-done" style="font-size:.78rem;padding:5px 12px">Clear done</button>
       </div>
       <div class="todo-input-row">
         <input type="text" class="todo-input" id="todo-input" placeholder="Add a task… press Enter" />
+        <input type="date" class="todo-date-pick" id="todo-date-pick" title="Schedule for a specific date" />
         <button class="btn btn-accent" id="btn-add-todo">Add</button>
       </div>
-      <div class="todo-list" id="todo-list"></div>
+      <div id="todo-list"></div>
     </div>
   </div>
 </div>
@@ -772,35 +792,102 @@ document.getElementById('cal-next').onclick=()=>{ calView.month++; if(calView.mo
 renderCalendar();
 
 /* ══════════════════════════════════════════
-   TO-DO
+   TO-DO  (persistent, scheduled, overdue)
 ══════════════════════════════════════════ */
-const TODAY=todayStr();
-let todoData=JSON.parse(localStorage.getItem('dashboard_todo')||'{"date":"","tasks":[]}');
-if(todoData.date!==TODAY) todoData={date:TODAY,tasks:[]};
-function saveTodo(){ localStorage.setItem('dashboard_todo',JSON.stringify(todoData)); }
-document.getElementById('todo-date-label').textContent=`Resets daily · ${TODAY}`;
+const TODAY = todayStr();
+
+// Set date picker default to today
+document.getElementById('todo-date-pick').value = TODAY;
+
+// Migrate old format if needed, otherwise load
+let tasks = JSON.parse(localStorage.getItem('dashboard_todo_v2') || '[]');
+
+function saveTodo(){ localStorage.setItem('dashboard_todo_v2', JSON.stringify(tasks)); }
+
+function fmtDate(ds){
+  if(!ds) return '';
+  const [y,m,d] = ds.split('-');
+  return new Date(y, m-1, d).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+}
+
+function taskStatus(task){
+  if(task.done) return 'done';
+  if(task.date < TODAY) return 'overdue';
+  if(task.date > TODAY) return 'upcoming';
+  return 'today';
+}
 
 function renderTodo(){
-  const list=document.getElementById('todo-list'); list.innerHTML='';
-  if(!todoData.tasks.length){ list.innerHTML='<div class="todo-empty">No tasks yet — add one above</div>'; return; }
-  todoData.tasks.forEach((task,i)=>{
-    const item=document.createElement('div'); item.className='todo-item'+(task.done?' done':'');
-    const check=document.createElement('div'); check.className='todo-check'+(task.done?' checked':'');
-    check.onclick=()=>{ todoData.tasks[i].done=!todoData.tasks[i].done; saveTodo(); renderTodo(); };
-    const text=document.createElement('span'); text.className='todo-text'; text.textContent=task.text;
-    const del=document.createElement('button'); del.className='todo-del'; del.textContent='✕';
-    del.onclick=()=>{ todoData.tasks.splice(i,1); saveTodo(); renderTodo(); };
-    item.append(check,text,del); list.appendChild(item);
-  });
+  const container = document.getElementById('todo-list');
+  container.innerHTML = '';
+
+  const overdue  = tasks.filter(t => taskStatus(t) === 'overdue');
+  const today    = tasks.filter(t => taskStatus(t) === 'today');
+  const upcoming = tasks.filter(t => taskStatus(t) === 'upcoming');
+  const done     = tasks.filter(t => t.done);
+
+  if(!tasks.length){
+    container.innerHTML = '<div class="todo-empty">No tasks yet — add one above</div>';
+    return;
+  }
+
+  function makeItem(task){
+    const idx = tasks.indexOf(task);
+    const status = taskStatus(task);
+    const item = document.createElement('div');
+    item.className = 'todo-item' + (task.done ? ' done' : '') + (status==='overdue' ? ' overdue' : '') + (status==='upcoming' ? ' upcoming' : '');
+
+    const check = document.createElement('div');
+    check.className = 'todo-check' + (task.done ? ' checked' : '') + (status==='overdue'&&!task.done ? ' overdue-check' : '');
+    check.onclick = () => { tasks[idx].done = !tasks[idx].done; saveTodo(); renderTodo(); };
+
+    const text = document.createElement('span');
+    text.className = 'todo-text';
+    text.textContent = task.text;
+
+    const meta = document.createElement('span');
+    meta.className = 'todo-meta' + (status==='overdue' ? ' overdue-meta' : '');
+    if(status === 'overdue')  meta.textContent = `Due ${fmtDate(task.date)}`;
+    if(status === 'upcoming') meta.textContent = fmtDate(task.date);
+
+    const del = document.createElement('button');
+    del.className = 'todo-del'; del.textContent = '✕';
+    del.onclick = () => { tasks.splice(idx,1); saveTodo(); renderTodo(); };
+
+    item.append(check, text, meta, del);
+    return item;
+  }
+
+  function makeGroup(label, list, cls=''){
+    if(!list.length) return;
+    const lbl = document.createElement('div');
+    lbl.className = 'todo-group-label ' + cls;
+    lbl.textContent = label;
+    container.appendChild(lbl);
+    const ul = document.createElement('div');
+    ul.className = 'todo-list';
+    list.forEach(t => ul.appendChild(makeItem(t)));
+    container.appendChild(ul);
+  }
+
+  makeGroup(`⚠ Overdue (${overdue.length})`, overdue, 'overdue-label');
+  makeGroup(`Today · ${fmtDate(TODAY)}`, today);
+  makeGroup(`Upcoming`, upcoming, 'upcoming-label');
+  if(done.length) makeGroup(`Completed`, done);
 }
+
 function addTodo(){
-  const val=document.getElementById('todo-input').value.trim(); if(!val) return;
-  todoData.tasks.push({text:val,done:false}); saveTodo(); renderTodo();
-  document.getElementById('todo-input').value='';
+  const val = document.getElementById('todo-input').value.trim(); if(!val) return;
+  const date = document.getElementById('todo-date-pick').value || TODAY;
+  tasks.push({ id: Date.now(), text: val, done: false, date });
+  saveTodo(); renderTodo();
+  document.getElementById('todo-input').value = '';
+  document.getElementById('todo-date-pick').value = TODAY;
 }
-document.getElementById('btn-add-todo').onclick=addTodo;
-document.getElementById('todo-input').addEventListener('keydown',e=>{ if(e.key==='Enter') addTodo(); });
-document.getElementById('btn-clear-done').onclick=()=>{ todoData.tasks=todoData.tasks.filter(t=>!t.done); saveTodo(); renderTodo(); };
+
+document.getElementById('btn-add-todo').onclick = addTodo;
+document.getElementById('todo-input').addEventListener('keydown', e => { if(e.key==='Enter') addTodo(); });
+document.getElementById('btn-clear-done').onclick = () => { tasks = tasks.filter(t => !t.done); saveTodo(); renderTodo(); };
 renderTodo();
 
 /* ══════════════════════════════════════════
