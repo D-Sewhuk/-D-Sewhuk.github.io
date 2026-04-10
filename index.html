@@ -310,13 +310,68 @@ nav{
 .todo-del:hover{color:var(--red)}
 .todo-empty{color:var(--text3);font-size:.875rem;text-align:center;padding:28px}
 
-/* ── WORD ── */
-.word-card{text-align:center;padding:50px 24px}
-.word-of-day{font-size:2.8rem;font-weight:600;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.word-phonetic{font-size:.9rem;color:var(--text3);margin-bottom:16px}
-.word-type{font-size:.73rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500}
-.word-def{font-size:1.05rem;color:var(--text2);line-height:1.75;max-width:580px;margin:0 auto 18px}
-.word-example{font-size:.9rem;color:var(--text3);font-style:italic;max-width:500px;margin:0 auto}
+/* ── FLIP CARD ── */
+.flip-scene{perspective:1200px;width:100%;max-width:640px;margin:0 auto;height:380px}
+@media(max-width:640px){.flip-scene{height:440px}}
+.flip-inner{
+  position:relative;width:100%;height:100%;
+  transform-style:preserve-3d;
+  transition:transform .65s cubic-bezier(.4,0,.2,1);
+  cursor:pointer;
+}
+.flip-inner.flipped{transform:rotateY(180deg)}
+.flip-face{
+  position:absolute;inset:0;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:16px;padding:36px 40px 24px;
+  display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;
+  user-select:none;
+}
+.flip-back-face{transform:rotateY(180deg)}
+.flip-hint{
+  position:absolute;bottom:16px;left:50%;transform:translateX(-50%);
+  font-size:.68rem;color:var(--text3);letter-spacing:.5px;white-space:nowrap;
+}
+.flip-label{
+  font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;
+  color:var(--text3);margin-bottom:24px;
+}
+.word-of-day{font-size:2.6rem;font-weight:600;margin-bottom:6px;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
+.word-phonetic{font-size:.88rem;color:var(--text3);margin-bottom:12px}
+.word-type{font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:600}
+.word-def{font-size:.95rem;color:var(--text2);line-height:1.7;margin-bottom:10px}
+.word-example{font-size:.85rem;color:var(--text3);font-style:italic}
+.fact-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:#f78166;margin-bottom:20px}
+.fact-text{font-size:1rem;color:var(--text2);line-height:1.75;max-width:480px}
+.save-btn{
+  position:absolute;bottom:16px;right:20px;
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:20px;padding:5px 14px;font-family:var(--font);font-size:.72rem;
+  color:var(--text2);cursor:pointer;transition:all .15s;
+}
+.save-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
+.save-btn.saved{color:var(--green);border-color:rgba(63,185,80,0.3)}
+
+/* ── LIBRARY ── */
+.lib-tabs{display:flex;gap:6px;margin-bottom:24px}
+.lib-tab{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:8px 20px;font-family:var(--font);font-size:.85rem;
+  color:var(--text2);cursor:pointer;transition:all .15s;
+}
+.lib-tab.active{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.14)}
+.lib-item{
+  border:1px solid var(--border);border-radius:10px;padding:16px 18px;
+  margin-bottom:10px;background:var(--surface);
+}
+.lib-item-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px}
+.lib-item-title{font-weight:600;font-size:.95rem}
+.lib-item-meta{font-size:.72rem;color:var(--text3);margin-bottom:8px}
+.lib-item-body{font-size:.875rem;color:var(--text2);line-height:1.65}
+.lib-item-example{font-size:.82rem;color:var(--text3);font-style:italic;margin-top:6px}
+.lib-empty{color:var(--text3);font-size:.875rem;text-align:center;padding:40px}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar{width:5px;height:5px}
@@ -347,6 +402,7 @@ nav{
     <a data-page="calendar" onclick="navigate('calendar')">Calendar</a>
     <a data-page="todo"     onclick="navigate('todo')">To-Do</a>
     <a data-page="word"     onclick="navigate('word')">Word</a>
+    <a data-page="library"  onclick="navigate('library')">Library</a>
   </div>
 </nav>
 
@@ -527,15 +583,48 @@ nav{
 
 <!-- ═══════════ WORD ═══════════ -->
 <div class="page" id="page-word">
-  <div class="page-inner">
-    <div class="page-title">Word of the Day</div>
-    <div class="card word-card">
-      <div class="word-of-day"  id="wotd-word"></div>
-      <div class="word-phonetic" id="wotd-phonetic"></div>
-      <div class="word-type"    id="wotd-type"></div>
-      <div class="word-def"     id="wotd-def"></div>
-      <div class="word-example" id="wotd-example"></div>
+  <div class="page-inner" style="display:flex;flex-direction:column;align-items:center">
+    <div class="page-title" style="width:100%;max-width:640px">Word &amp; Fact of the Day</div>
+    <p style="font-size:.8rem;color:var(--text3);margin-bottom:24px;max-width:640px;width:100%">Click the card to flip between today's word and today's fun fact</p>
+
+    <div class="flip-scene" id="flip-scene">
+      <div class="flip-inner" id="flip-inner" onclick="flipCard()">
+
+        <!-- FRONT: Word -->
+        <div class="flip-face flip-front-face">
+          <div class="flip-label">Word of the Day</div>
+          <div class="word-of-day"  id="wotd-word"></div>
+          <div class="word-phonetic" id="wotd-phonetic"></div>
+          <div class="word-type"    id="wotd-type"></div>
+          <div class="word-def"     id="wotd-def"></div>
+          <div class="word-example" id="wotd-example"></div>
+          <button class="save-btn" id="btn-save-word" onclick="event.stopPropagation();saveWord()">Save word</button>
+          <div class="flip-hint">click to flip</div>
+        </div>
+
+        <!-- BACK: Fact -->
+        <div class="flip-face flip-back-face">
+          <div class="fact-label">Fun Fact of the Day</div>
+          <div class="fact-text" id="fact-text"></div>
+          <button class="save-btn" id="btn-save-fact" onclick="event.stopPropagation();saveFact()">Save fact</button>
+          <div class="flip-hint">click to flip</div>
+        </div>
+
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══════════ LIBRARY ═══════════ -->
+<div class="page" id="page-library">
+  <div class="page-inner">
+    <div class="page-title">Library</div>
+    <div class="lib-tabs">
+      <button class="lib-tab active" id="lib-tab-words" onclick="switchLibTab('words')">Saved Words</button>
+      <button class="lib-tab"        id="lib-tab-facts" onclick="switchLibTab('facts')">Saved Facts</button>
+    </div>
+    <div id="lib-words-panel"></div>
+    <div id="lib-facts-panel" style="display:none"></div>
   </div>
 </div>
 
@@ -1025,7 +1114,7 @@ document.getElementById('btn-clear-done').onclick = () => { tasks = tasks.filter
 renderTodo();
 
 /* ══════════════════════════════════════════
-   WORD OF THE DAY
+   WORD & FACT OF THE DAY
 ══════════════════════════════════════════ */
 const WORDS=[
   {word:'Ephemeral',phonetic:'/ɪˈfem.ər.əl/',type:'adjective',def:'Lasting for a very short time; transitory.',example:'"The beauty of the cherry blossoms is ephemeral — here one week, gone the next."'},
@@ -1048,24 +1137,149 @@ const WORDS=[
   {word:'Sempiternal',phonetic:'/ˌsem.pɪˈtɜː.nəl/',type:'adjective',def:'Eternal and unchanging; everlasting.',example:'"The sempiternal stars have guided sailors for millennia."'},
   {word:'Lacuna',phonetic:'/ləˈkjuː.nə/',type:'noun',def:'An unfilled space or interval; a gap.',example:'"There was a lacuna in the historical record spanning two decades."'},
   {word:'Alacrity',phonetic:'/əˈlæk.rɪ.ti/',type:'noun',def:'Brisk and cheerful readiness.',example:'"She accepted the challenge with alacrity."'},
-  {word:'Simulacrum',phonetic:'/ˌsɪm.jʊˈleɪ.krəm/',type:'noun',def:'An image or representation of something; an unsatisfactory imitation.',example:'"The theme park was a simulacrum of ancient Rome."'},
+  {word:'Simulacrum',phonetic:'/ˌsɪm.jʊˈleɪ.krəm/',type:'noun',def:'An image or representation; an unsatisfactory imitation.',example:'"The theme park was a simulacrum of ancient Rome."'},
   {word:'Crepuscular',phonetic:'/krɪˈpʌs.kjʊ.lər/',type:'adjective',def:'Of or relating to twilight.',example:'"Fireflies are crepuscular creatures, emerging at dusk."'},
   {word:'Fugacious',phonetic:'/fjuːˈɡeɪ.ʃəs/',type:'adjective',def:'Tending to disappear; fleeting.',example:'"Youth is the most fugacious of gifts."'},
   {word:'Vellichor',phonetic:'/ˈvel.ɪ.kɔːr/',type:'noun',def:'The strange wistfulness of used bookshops.',example:'"He could spend hours in vellichor, lost among the dusty shelves."'},
-  {word:'Adumbrate',phonetic:'/ˈæd.ʌm.breɪt/',type:'verb',def:'To indicate or describe roughly; to foreshadow.',example:'"The early paintings adumbrate the style he would perfect later."'},
+  {word:'Adumbrate',phonetic:'/ˈæd.ʌm.breɪt/',type:'verb',def:'To indicate roughly; to foreshadow.',example:'"The early paintings adumbrate the style he would perfect later."'},
   {word:'Tenebrous',phonetic:'/ˈten.ɪ.brəs/',type:'adjective',def:'Dark; shadowy or obscure.',example:'"The tenebrous forest path made navigation treacherous."'},
   {word:'Fulgent',phonetic:'/ˈfʌl.dʒənt/',type:'adjective',def:'Shining brightly; radiant.',example:'"The fulgent sun broke through after the storm."'},
   {word:'Sibilant',phonetic:'/ˈsɪb.ɪ.lənt/',type:'adjective',def:'Making or characterized by a hissing sound.',example:'"The sibilant whisper of the wind through the reeds."'},
   {word:'Soliloquy',phonetic:'/səˈlɪl.ə.kwi/',type:'noun',def:'An act of speaking one\'s thoughts aloud when alone.',example:'"Hamlet\'s famous soliloquy begins with \'To be or not to be.\'"'},
   {word:'Pulchritudinous',phonetic:'/ˌpʌl.krɪˈtjuː.dɪ.nəs/',type:'adjective',def:'Physically beautiful; attractive.',example:'"The pulchritudinous landscape drew painters from across the country."'},
+  {word:'Quiddity',phonetic:'/ˈkwɪd.ɪ.ti/',type:'noun',def:'The inherent nature or essence of someone or something.',example:'"The quiddity of jazz is its spontaneity."'},
+  {word:'Apricity',phonetic:'/əˈprɪs.ɪ.ti/',type:'noun',def:'The warmth of the sun in winter.',example:'"She sat by the window, enjoying the apricity on a cold January afternoon."'},
 ];
-const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
-const wotd=WORDS[dayOfYear%WORDS.length];
-document.getElementById('wotd-word').textContent=wotd.word;
-document.getElementById('wotd-phonetic').textContent=wotd.phonetic;
-document.getElementById('wotd-type').textContent=wotd.type;
-document.getElementById('wotd-def').textContent=wotd.def;
-document.getElementById('wotd-example').textContent=wotd.example;
+
+const FACTS=[
+  'Honey never spoils. Archaeologists have found 3,000-year-old honey in Egyptian tombs that was still perfectly edible.',
+  'The shortest war in history was between Britain and Zanzibar in 1896. It lasted between 38 and 45 minutes.',
+  'A day on Venus is longer than a year on Venus — it rotates so slowly that it completes an orbit around the Sun before finishing a single rotation.',
+  'The human brain generates about 20 watts of electrical power — enough to power a dim light bulb.',
+  'Cleopatra lived closer in time to the Moon landing than to the construction of the Great Pyramid of Giza.',
+  'Octopuses have three hearts, blue blood, and can edit their own RNA to adapt to temperature changes in real time.',
+  'There are more possible iterations of a game of chess than there are atoms in the observable universe.',
+  'Bananas are berries by botanical definition, but strawberries are not.',
+  'The mantis shrimp can throw a punch at 50 mph and sees 16 types of color receptors (humans have 3).',
+  'A group of flamingos is called a "flamboyance." A group of crows is called a "murder."',
+  'Oxford University is older than the Aztec Empire. Teaching began there around 1096 AD; the Aztec Empire was founded in 1428.',
+  'The Eiffel Tower grows about 6 inches taller in summer due to thermal expansion of the iron.',
+  'Sharks are older than trees. Sharks have existed for ~450 million years; trees evolved only ~350 million years ago.',
+  'Your body has around 37 trillion cells, but around 38 trillion bacteria — you are slightly more microbe than human.',
+  'Finland has more saunas than cars — approximately 3.3 million saunas for 5.5 million people.',
+  'The word "set" has the most definitions of any word in the English language — over 430 in some dictionaries.',
+  'Crows can recognize human faces and hold grudges. They have been observed passing this information to their offspring.',
+  'The total weight of all ants on Earth roughly equals the total weight of all humans on Earth.',
+  'Light takes about 8 minutes to travel from the Sun to Earth, but takes 100,000 years to travel from the Sun\'s core to its surface.',
+  'Wombats produce cube-shaped feces — the only known animal to do so. Scientists believe it helps mark territory without rolling away.',
+  'The average person walks about 100,000 miles in a lifetime — roughly four times around the Earth.',
+  'In 1962, a laughing epidemic in Tanzania spread through a school and lasted 18 months, forcing multiple schools to close.',
+  'Mice and rats are both incredibly ticklish and emit ultrasonic laughter when tickled — at a frequency humans can\'t hear.',
+  'The tongue of a blue whale weighs as much as an adult elephant.',
+  'A photon of light takes about 170,000 years to travel from the Sun\'s core to its surface, then just 8 minutes to reach Earth.',
+  'There is a species of jellyfish (Turritopsis dohrnii) that is considered biologically immortal — it can revert to its juvenile state.',
+  'The Apollo 11 computer had less processing power than a modern USB-C cable controller chip.',
+  'Humans share 60% of their DNA with bananas and 85% with mice.',
+  'Saturn\'s density is so low that it would float if you could find an ocean large enough to put it in.',
+  'The smell of rain has a name — petrichor — and it\'s caused by a compound called geosmin released by soil bacteria.',
+  'Every two minutes, humans take as many photographs as were taken in the entire 1800s.',
+  'In Iceland, it is common to accidentally date a distant relative — the country even has an app called Íslendingabók to prevent this.',
+];
+
+const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+const wotd = WORDS[dayOfYear % WORDS.length];
+const todayFact = FACTS[(dayOfYear + 11) % FACTS.length]; // offset so word/fact indices differ
+
+// Populate front
+document.getElementById('wotd-word').textContent     = wotd.word;
+document.getElementById('wotd-phonetic').textContent = wotd.phonetic;
+document.getElementById('wotd-type').textContent     = wotd.type;
+document.getElementById('wotd-def').textContent      = wotd.def;
+document.getElementById('wotd-example').textContent  = wotd.example;
+
+// Populate back
+document.getElementById('fact-text').textContent = todayFact;
+
+// Flip logic
+let cardFlipped = false;
+function flipCard(){ cardFlipped = !cardFlipped; document.getElementById('flip-inner').classList.toggle('flipped', cardFlipped); }
+
+// ── Save / Library ──
+let savedWords = JSON.parse(localStorage.getItem('dashboard_saved_words') || '[]');
+let savedFacts = JSON.parse(localStorage.getItem('dashboard_saved_facts') || '[]');
+function persistWords(){ localStorage.setItem('dashboard_saved_words', JSON.stringify(savedWords)); }
+function persistFacts(){ localStorage.setItem('dashboard_saved_facts', JSON.stringify(savedFacts)); }
+
+function saveWord(){
+  const btn = document.getElementById('btn-save-word');
+  if(savedWords.some(w => w.word === wotd.word)){ btn.textContent='Already saved'; return; }
+  savedWords.unshift({ ...wotd, savedAt: new Date().toLocaleDateString('en-US',{timeZone:TZ,month:'short',day:'numeric',year:'numeric'}) });
+  persistWords(); btn.textContent='Saved ✓'; btn.classList.add('saved');
+}
+
+function saveFact(){
+  const btn = document.getElementById('btn-save-fact');
+  if(savedFacts.some(f => f.fact === todayFact)){ btn.textContent='Already saved'; return; }
+  savedFacts.unshift({ fact: todayFact, savedAt: new Date().toLocaleDateString('en-US',{timeZone:TZ,month:'short',day:'numeric',year:'numeric'}) });
+  persistFacts(); btn.textContent='Saved ✓'; btn.classList.add('saved');
+}
+
+// Reflect existing saves on load
+if(savedWords.some(w => w.word === wotd.word)){
+  const b = document.getElementById('btn-save-word'); b.textContent='Saved ✓'; b.classList.add('saved');
+}
+if(savedFacts.some(f => f.fact === todayFact)){
+  const b = document.getElementById('btn-save-fact'); b.textContent='Saved ✓'; b.classList.add('saved');
+}
+
+// ── Library ──
+let libActiveTab = 'words';
+function switchLibTab(tab){
+  libActiveTab = tab;
+  document.getElementById('lib-tab-words').classList.toggle('active', tab==='words');
+  document.getElementById('lib-tab-facts').classList.toggle('active', tab==='facts');
+  document.getElementById('lib-words-panel').style.display = tab==='words' ? '' : 'none';
+  document.getElementById('lib-facts-panel').style.display = tab==='facts' ? '' : 'none';
+  renderLibrary();
+}
+
+function renderLibrary(){
+  // Words
+  const wp = document.getElementById('lib-words-panel'); wp.innerHTML='';
+  if(!savedWords.length){ wp.innerHTML='<div class="lib-empty">No saved words yet — visit the Word page to save one.</div>'; }
+  else savedWords.forEach((w,i)=>{
+    const el=document.createElement('div'); el.className='lib-item';
+    el.innerHTML=`
+      <div class="lib-item-header">
+        <span class="lib-item-title">${w.word} <span style="font-size:.72rem;color:var(--text3);font-weight:400">${w.type}</span></span>
+        <button class="pr-del" onclick="deleteSavedWord(${i})">✕</button>
+      </div>
+      <div class="lib-item-meta">${w.phonetic} · Saved ${w.savedAt}</div>
+      <div class="lib-item-body">${w.def}</div>
+      <div class="lib-item-example">${w.example}</div>`;
+    wp.appendChild(el);
+  });
+
+  // Facts
+  const fp = document.getElementById('lib-facts-panel'); fp.innerHTML='';
+  if(!savedFacts.length){ fp.innerHTML='<div class="lib-empty">No saved facts yet — visit the Word page and flip the card to save one.</div>'; }
+  else savedFacts.forEach((f,i)=>{
+    const el=document.createElement('div'); el.className='lib-item';
+    el.innerHTML=`
+      <div class="lib-item-header">
+        <span class="lib-item-title">Fun Fact</span>
+        <button class="pr-del" onclick="deleteSavedFact(${i})">✕</button>
+      </div>
+      <div class="lib-item-meta">Saved ${f.savedAt}</div>
+      <div class="lib-item-body">${f.fact}</div>`;
+    fp.appendChild(el);
+  });
+}
+
+function deleteSavedWord(i){ savedWords.splice(i,1); persistWords(); renderLibrary(); }
+function deleteSavedFact(i){ savedFacts.splice(i,1); persistFacts(); renderLibrary(); }
+
+renderLibrary();
 </script>
 </body>
 </html>
