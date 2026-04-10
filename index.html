@@ -76,10 +76,34 @@ nav{
 #weather-widget{
   display:inline-flex;align-items:center;gap:10px;
   background:var(--surface);border:1px solid var(--border);
-  padding:8px 18px;border-radius:40px;margin-bottom:36px;
+  padding:8px 18px;border-radius:40px;margin-bottom:12px;
   font-size:.9rem;color:var(--text2);
 }
 #weather-icon{font-size:1.2rem}
+#weather-location{font-size:.75rem;color:var(--text3);margin-bottom:28px}
+#weather-location button{
+  background:none;border:none;color:var(--text3);cursor:pointer;
+  font-family:var(--font);font-size:.75rem;margin-left:6px;
+  text-decoration:underline;transition:color .15s;
+}
+#weather-location button:hover{color:var(--text2)}
+#weather-edit-box{
+  display:none;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);
+  padding:8px 14px;border-radius:40px;margin-bottom:28px;
+}
+#weather-edit-box input{
+  background:transparent;border:none;color:var(--text);
+  font-family:var(--font);font-size:.85rem;outline:none;width:180px;
+}
+#weather-edit-box input::placeholder{color:var(--text3)}
+#weather-edit-box button{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:20px;padding:4px 12px;font-family:var(--font);
+  font-size:.78rem;color:var(--text2);cursor:pointer;white-space:nowrap;
+  transition:all .15s;
+}
+#weather-edit-box button:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
 .hero-links{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
 .hero-link{
   display:flex;align-items:center;gap:8px;
@@ -302,6 +326,16 @@ footer{text-align:center;padding:40px 24px;color:var(--text3);font-size:.8rem;bo
   <div id="weather-widget">
     <span id="weather-icon">⏳</span>
     <span id="weather-text">Fetching weather…</span>
+  </div>
+  <div id="weather-location">
+    <span id="weather-city-label">Rochester, NY</span>
+    <button onclick="toggleWeatherEdit()">✏️ Change</button>
+  </div>
+  <div id="weather-edit-box">
+    <input type="text" id="weather-city-input" placeholder="Enter city, e.g. Buffalo NY" />
+    <button onclick="searchCity()">Search</button>
+    <button onclick="useGeolocation()">📍 Use my location</button>
+    <button onclick="toggleWeatherEdit()">✕</button>
   </div>
   <div class="hero-links">
     <a class="hero-link" href="https://mail.google.com" target="_blank">
@@ -527,7 +561,19 @@ const WMO = {
   82:{d:'Heavy showers',i:'⛈️'},85:{d:'Snow showers',i:'🌨️'},86:{d:'Heavy snow showers',i:'🌨️'},
   95:{d:'Thunderstorm',i:'⛈️'},96:{d:'Thunderstorm',i:'⛈️'},99:{d:'Heavy thunderstorm',i:'⛈️'}
 };
+
+// Default: Rochester, NY — overridden by localStorage or geolocation
+const DEFAULT_LOC = { lat: 43.1566, lon: -77.6088, label: 'Rochester, NY' };
+let weatherLoc = JSON.parse(localStorage.getItem('dashboard_weather_loc') || 'null') || DEFAULT_LOC;
+
+function saveWeatherLoc(loc) {
+  weatherLoc = loc;
+  localStorage.setItem('dashboard_weather_loc', JSON.stringify(loc));
+}
+
 function fetchWeather(lat, lon) {
+  document.getElementById('weather-icon').textContent = '⏳';
+  document.getElementById('weather-text').textContent = 'Loading…';
   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`)
     .then(r => r.json())
     .then(d => {
@@ -538,17 +584,74 @@ function fetchWeather(lat, lon) {
         `${Math.round(cw.temperature)}°F · ${info.d}`;
     })
     .catch(() => {
+      document.getElementById('weather-icon').textContent = '❌';
       document.getElementById('weather-text').textContent = 'Weather unavailable';
     });
 }
-if (navigator.geolocation) {
+
+function updateWeatherLabel(label) {
+  document.getElementById('weather-city-label').textContent = label;
+}
+
+function toggleWeatherEdit() {
+  const box = document.getElementById('weather-edit-box');
+  const loc = document.getElementById('weather-location');
+  const open = box.style.display === 'flex';
+  box.style.display = open ? 'none' : 'flex';
+  loc.style.display = open ? '' : 'none';
+  if (!open) document.getElementById('weather-city-input').focus();
+}
+
+function searchCity() {
+  const query = document.getElementById('weather-city-input').value.trim();
+  if (!query) return;
+  document.getElementById('weather-text').textContent = 'Searching…';
+  fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`)
+    .then(r => r.json())
+    .then(data => {
+      if (!data.results || !data.results.length) {
+        document.getElementById('weather-text').textContent = 'City not found';
+        return;
+      }
+      const r = data.results[0];
+      const label = [r.name, r.admin1, r.country_code].filter(Boolean).join(', ');
+      saveWeatherLoc({ lat: r.latitude, lon: r.longitude, label });
+      updateWeatherLabel(label);
+      fetchWeather(r.latitude, r.longitude);
+      toggleWeatherEdit();
+      document.getElementById('weather-city-input').value = '';
+    })
+    .catch(() => {
+      document.getElementById('weather-text').textContent = 'Search failed';
+    });
+}
+
+function useGeolocation() {
+  if (!navigator.geolocation) {
+    document.getElementById('weather-text').textContent = 'Geolocation unsupported';
+    return;
+  }
+  document.getElementById('weather-text').textContent = 'Detecting location…';
   navigator.geolocation.getCurrentPosition(
-    p => fetchWeather(p.coords.latitude, p.coords.longitude),
+    p => {
+      const loc = { lat: p.coords.latitude, lon: p.coords.longitude, label: 'Current location' };
+      saveWeatherLoc(loc);
+      updateWeatherLabel('Current location');
+      fetchWeather(loc.lat, loc.lon);
+      toggleWeatherEdit();
+    },
     () => { document.getElementById('weather-text').textContent = 'Location denied'; }
   );
-} else {
-  document.getElementById('weather-text').textContent = 'Geolocation unsupported';
 }
+
+document.getElementById('weather-city-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') searchCity();
+  if (e.key === 'Escape') toggleWeatherEdit();
+});
+
+// Init
+updateWeatherLabel(weatherLoc.label);
+fetchWeather(weatherLoc.lat, weatherLoc.lon);
 
 /* ══════════════════════════════════════════
    NOTES
