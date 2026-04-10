@@ -18,129 +18,147 @@
   --accent:#58a6ff;
   --green:#3fb950;
   --red:#f78166;
+  --nav-h:56px;
   --font:'Space Grotesk',sans-serif;
 }
-html{scroll-behavior:smooth}
+
+html,body{height:100%;overflow:hidden}
 body{
   font-family:var(--font);
   background:var(--bg);
   color:var(--text);
-  min-height:100vh;
-  overflow-x:hidden;
   transition:background 4s ease;
 }
 body::before{
-  content:'';
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:0;
-  transition:background 4s ease,opacity 4s ease;
-  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(30,50,120,0.35) 0%,transparent 70%);
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  transition:background 4s ease;
+  background:radial-gradient(ellipse 80% 50% at 50% -5%,rgba(30,50,120,0.35) 0%,transparent 70%);
 }
-section,nav,header{position:relative;z-index:1}
 
 /* ── NAV ── */
 nav{
-  position:fixed;top:0;left:0;right:0;z-index:100;
+  position:fixed;top:0;left:0;right:0;z-index:100;height:var(--nav-h);
   display:flex;align-items:center;justify-content:space-between;
-  padding:14px 32px;
-  background:rgba(8,12,20,0.7);
-  backdrop-filter:blur(12px);
+  padding:0 32px;
+  background:rgba(8,12,20,0.75);
+  backdrop-filter:blur(14px);
   border-bottom:1px solid var(--border);
 }
-.nav-logo{font-weight:600;font-size:.95rem;color:var(--accent);letter-spacing:.5px}
-.nav-links{display:flex;gap:24px}
-.nav-links a{
-  color:var(--text2);font-size:.85rem;text-decoration:none;
-  transition:color .2s;letter-spacing:.3px;
+.nav-logo{
+  font-weight:600;font-size:.95rem;color:var(--accent);
+  letter-spacing:.5px;cursor:pointer;text-decoration:none;
 }
-.nav-links a:hover{color:var(--text)}
+.nav-links{display:flex;gap:6px}
+.nav-links a{
+  color:var(--text2);font-size:.82rem;text-decoration:none;
+  padding:6px 12px;border-radius:8px;
+  transition:all .18s;letter-spacing:.2px;border:1px solid transparent;
+}
+.nav-links a:hover{color:var(--text);background:var(--surface)}
+.nav-links a.active{
+  color:var(--text);background:var(--surface2);
+  border-color:var(--border);
+}
 
-/* ── HERO ── */
-#home{
-  min-height:100vh;
+/* ── PAGES ── */
+.page{
+  position:fixed;inset:0;top:var(--nav-h);
+  overflow-y:auto;overflow-x:hidden;
+  opacity:0;pointer-events:none;
+  transition:opacity .22s ease;
+  z-index:1;
+}
+.page.active{opacity:1;pointer-events:all}
+
+/* ── HOME PAGE ── */
+#page-home{
   display:flex;flex-direction:column;
   align-items:center;justify-content:center;
-  text-align:center;padding:80px 24px 40px;
+  text-align:center;padding:32px 24px;
 }
-#greeting{font-size:1rem;font-weight:400;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+#greeting{font-size:.9rem;font-weight:400;color:var(--text2);letter-spacing:3px;text-transform:uppercase;margin-bottom:18px}
 #clock{
-  font-size:clamp(4rem,12vw,9rem);
-  font-weight:300;letter-spacing:-2px;
-  line-height:1;margin-bottom:10px;
+  font-size:clamp(4rem,13vw,9rem);font-weight:300;letter-spacing:-3px;line-height:1;margin-bottom:8px;
   background:linear-gradient(135deg,#e6edf3 60%,#8b949e);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
 }
-#datestr{font-size:1rem;color:var(--text2);font-weight:400;margin-bottom:32px;letter-spacing:.5px}
+#datestr{font-size:.95rem;color:var(--text2);font-weight:400;margin-bottom:28px;letter-spacing:.5px}
 #weather-widget{
   display:inline-flex;align-items:center;gap:10px;
   background:var(--surface);border:1px solid var(--border);
-  padding:8px 18px;border-radius:40px;margin-bottom:12px;
-  font-size:.9rem;color:var(--text2);
+  padding:7px 18px;border-radius:40px;margin-bottom:10px;
+  font-size:.88rem;color:var(--text2);
 }
-#weather-icon{font-size:1.2rem}
-#weather-location{font-size:.75rem;color:var(--text3);margin-bottom:28px}
+#weather-icon{font-size:1.15rem}
+#weather-location{font-size:.73rem;color:var(--text3);margin-bottom:26px}
 #weather-location button{
   background:none;border:none;color:var(--text3);cursor:pointer;
-  font-family:var(--font);font-size:.75rem;margin-left:6px;
+  font-family:var(--font);font-size:.73rem;margin-left:5px;
   text-decoration:underline;transition:color .15s;
 }
 #weather-location button:hover{color:var(--text2)}
 #weather-edit-box{
   display:none;align-items:center;gap:8px;
   background:var(--surface);border:1px solid var(--border);
-  padding:8px 14px;border-radius:40px;margin-bottom:28px;
+  padding:8px 14px;border-radius:40px;margin-bottom:26px;
 }
 #weather-edit-box input{
   background:transparent;border:none;color:var(--text);
-  font-family:var(--font);font-size:.85rem;outline:none;width:180px;
+  font-family:var(--font);font-size:.85rem;outline:none;width:170px;
 }
 #weather-edit-box input::placeholder{color:var(--text3)}
 #weather-edit-box button{
   background:var(--surface2);border:1px solid var(--border);
-  border-radius:20px;padding:4px 12px;font-family:var(--font);
-  font-size:.78rem;color:var(--text2);cursor:pointer;white-space:nowrap;
-  transition:all .15s;
+  border-radius:20px;padding:4px 11px;font-family:var(--font);
+  font-size:.76rem;color:var(--text2);cursor:pointer;white-space:nowrap;transition:all .15s;
 }
 #weather-edit-box button:hover{color:var(--text);border-color:rgba(255,255,255,0.15)}
-.hero-links{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.hero-links{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
 .hero-link{
   display:flex;align-items:center;gap:8px;
   background:var(--surface);border:1px solid var(--border);
-  padding:10px 20px;border-radius:10px;text-decoration:none;
-  color:var(--text2);font-size:.875rem;transition:all .2s;
+  padding:10px 18px;border-radius:10px;text-decoration:none;
+  color:var(--text2);font-size:.85rem;transition:all .2s;cursor:pointer;
 }
-.hero-link:hover{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
-.hero-link svg{width:16px;height:16px;opacity:.7}
+.hero-link:hover{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.14);transform:translateY(-2px)}
+.hero-link svg{width:15px;height:15px;flex-shrink:0}
 
-/* ── SECTIONS ── */
-.section{padding:80px 0;max-width:960px;margin:0 auto;padding-left:24px;padding-right:24px}
-.section-title{
-  font-size:1.4rem;font-weight:600;margin-bottom:28px;
+/* ── INNER PAGE LAYOUT ── */
+.page-inner{
+  max-width:980px;margin:0 auto;
+  padding:40px 28px 60px;
+}
+.page-title{
+  font-size:1.35rem;font-weight:600;margin-bottom:28px;
   display:flex;align-items:center;gap:12px;
 }
-.section-title::after{
-  content:'';flex:1;height:1px;background:var(--border);
+.page-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+
+/* ── BUTTONS ── */
+.btn{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:8px 18px;font-family:var(--font);font-size:.85rem;
+  color:var(--text);cursor:pointer;transition:all .15s;
 }
-.section-divider{border:none;border-top:1px solid var(--border);margin:80px 0}
-.card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:24px;
-}
+.btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.14)}
+.btn-accent{background:rgba(88,166,255,0.14);border-color:rgba(88,166,255,0.3);color:var(--accent)}
+.btn-accent:hover{background:rgba(88,166,255,0.24)}
+.btn-danger{background:rgba(247,129,102,0.1);border-color:rgba(247,129,102,0.25);color:var(--red)}
+.btn-danger:hover{background:rgba(247,129,102,0.2)}
 
 /* ── NOTES ── */
-.notes-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.notes-tabs{display:flex;gap:8px;flex-wrap:wrap}
 .note-tab{
   background:var(--surface);border:1px solid var(--border);
   border-radius:8px;padding:6px 14px;font-size:.8rem;font-family:var(--font);
   color:var(--text2);cursor:pointer;transition:all .15s;position:relative;
 }
-.note-tab.active{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.15)}
+.note-tab.active{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.14)}
 .note-tab .del-tab{
   display:none;position:absolute;right:-6px;top:-6px;
-  background:#333;border-radius:50%;width:16px;height:16px;
-  font-size:10px;align-items:center;justify-content:center;cursor:pointer;border:none;color:#ccc;
+  background:#2a2a2a;border:none;border-radius:50%;width:16px;height:16px;
+  font-size:10px;align-items:center;justify-content:center;cursor:pointer;color:#ccc;
 }
 .note-tab:hover .del-tab{display:flex}
 .btn-add-note{
@@ -149,103 +167,89 @@ nav{
   color:var(--text3);cursor:pointer;transition:all .15s;
 }
 .btn-add-note:hover{border-color:var(--text2);color:var(--text2)}
-.note-editor{width:100%;min-height:220px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;color:var(--text);font-family:var(--font);font-size:.9rem;resize:vertical;line-height:1.6;outline:none;transition:border-color .2s}
-.note-editor:focus{border-color:rgba(88,166,255,0.3)}
-.note-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
-.note-saved{font-size:.8rem;color:var(--green);opacity:0;transition:opacity .3s}
-.btn{
-  background:var(--surface2);border:1px solid var(--border);
-  border-radius:8px;padding:8px 18px;font-family:var(--font);font-size:.85rem;
-  color:var(--text);cursor:pointer;transition:all .15s;
+.note-editor{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:10px;padding:16px;color:var(--text);font-family:var(--font);
+  font-size:.9rem;resize:none;line-height:1.7;outline:none;transition:border-color .2s;
 }
-.btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15)}
-.btn-accent{background:rgba(88,166,255,0.15);border-color:rgba(88,166,255,0.3);color:var(--accent)}
-.btn-accent:hover{background:rgba(88,166,255,0.25)}
-.btn-danger{background:rgba(247,129,102,0.12);border-color:rgba(247,129,102,0.25);color:var(--red)}
-.btn-danger:hover{background:rgba(247,129,102,0.22)}
+.note-editor:focus{border-color:rgba(88,166,255,0.3)}
+.note-saved{font-size:.8rem;color:var(--green);opacity:0;transition:opacity .3s}
 
-/* ── GYM TRACKER ── */
-.gym-meta{display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap}
-.gym-stat{text-align:center}
-.gym-stat-val{font-size:2rem;font-weight:600;line-height:1}
-.gym-stat-label{font-size:.75rem;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+/* ── GYM ── */
+.gym-meta{display:flex;gap:32px;margin-bottom:28px;flex-wrap:wrap}
+.gym-stat-val{font-size:2.2rem;font-weight:600;line-height:1}
+.gym-stat-label{font-size:.72rem;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
 .heatmap-wrap{overflow-x:auto;padding-bottom:8px}
-.heatmap{display:flex;gap:3px;align-items:flex-start}
-.heatmap-col{display:flex;flex-direction:column;gap:3px}
 .heatmap-cell{
   width:13px;height:13px;border-radius:2px;
   background:rgba(255,255,255,0.06);cursor:pointer;
   transition:transform .1s,background .15s;border:1px solid rgba(255,255,255,0.03);
 }
-.heatmap-cell:hover{transform:scale(1.3);border-color:rgba(255,255,255,0.2)}
+.heatmap-cell:hover{transform:scale(1.35);border-color:rgba(255,255,255,0.2)}
 .heatmap-cell.gym-day{background:#216e39}
-.heatmap-cell.gym-day-2{background:#2ea043}
-.heatmap-cell.gym-day.today{border-color:var(--accent);border-width:1px}
-.heatmap-months{display:flex;gap:3px;margin-bottom:6px}
-.heatmap-month-label{font-size:.65rem;color:var(--text3);min-width:13px}
-.heatmap-days{display:flex;flex-direction:column;gap:3px;margin-right:6px;padding-top:0}
-.heatmap-day-label{font-size:.65rem;color:var(--text3);height:13px;display:flex;align-items:center}
-.pr-table{width:100%;border-collapse:collapse;margin-top:8px}
-.pr-table th{text-align:left;font-size:.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;border-bottom:1px solid var(--border)}
+.heatmap-cell.gym-day.today{border-color:var(--accent)}
+.heatmap-day-label{font-size:.63rem;color:var(--text3);height:13px;display:flex;align-items:center}
+.pr-table{width:100%;border-collapse:collapse}
+.pr-table th{text-align:left;font-size:.72rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;border-bottom:1px solid var(--border)}
 .pr-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:.875rem}
 .pr-table tr:last-child td{border-bottom:none}
 .pr-table input{background:transparent;border:none;color:var(--text);font-family:var(--font);font-size:.875rem;outline:none;width:100%}
 .pr-table input:focus{background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 4px}
 .pr-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 4px;transition:color .15s}
 .pr-del:hover{color:var(--red)}
-.gym-section-title{font-size:.9rem;font-weight:600;margin:28px 0 14px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.sub-title{font-size:.82rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin:28px 0 14px}
 
 /* ── CALENDAR ── */
-.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
-.cal-month-label{font-size:1.1rem;font-weight:600}
-.cal-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-family:var(--font);font-size:.85rem;color:var(--text2);cursor:pointer;transition:all .15s}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.cal-month-label{font-size:1.05rem;font-weight:600}
+.cal-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-family:var(--font);font-size:.82rem;color:var(--text2);cursor:pointer;transition:all .15s}
 .cal-btn:hover{color:var(--text);background:rgba(255,255,255,0.08)}
-.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.cal-header{text-align:center;font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:8px 0}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-header{text-align:center;font-size:.68rem;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;padding:8px 0}
 .cal-day{
-  min-height:70px;background:var(--surface);border:1px solid var(--border);
-  border-radius:8px;padding:8px;cursor:pointer;transition:all .15s;position:relative;
+  min-height:72px;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:7px;cursor:pointer;transition:all .15s;
 }
 .cal-day:hover{background:var(--surface2);border-color:rgba(255,255,255,0.12)}
-.cal-day.other-month{opacity:.3}
+.cal-day.other-month{opacity:.28}
 .cal-day.today .cal-day-num{
   background:var(--accent);color:#fff;border-radius:50%;
   width:22px;height:22px;display:flex;align-items:center;justify-content:center;
 }
-.cal-day-num{font-size:.8rem;font-weight:500;margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.cal-day-num{font-size:.78rem;font-weight:500;margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
 .cal-event-dot{
-  font-size:.65rem;color:var(--text2);
-  background:rgba(88,166,255,0.15);border-radius:4px;
+  font-size:.62rem;color:var(--text2);
+  background:rgba(88,166,255,0.14);border-radius:4px;
   padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   max-width:100%;display:block;
 }
 .cal-modal{
   display:none;position:fixed;inset:0;z-index:200;
   align-items:center;justify-content:center;
-  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+  background:rgba(0,0,0,0.55);backdrop-filter:blur(6px);
 }
 .cal-modal.open{display:flex}
 .cal-modal-box{
   background:#0d1117;border:1px solid var(--border);border-radius:14px;
-  padding:28px;width:90%;max-width:440px;
+  padding:28px;width:90%;max-width:420px;
 }
-.cal-modal-title{font-size:1rem;font-weight:600;margin-bottom:16px}
-.cal-modal input,.cal-modal textarea{
+.cal-modal-title{font-size:1rem;font-weight:600;margin-bottom:14px}
+.cal-modal input{
   width:100%;background:var(--surface2);border:1px solid var(--border);
   border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font);
-  font-size:.875rem;outline:none;transition:border-color .2s;margin-bottom:10px;resize:vertical;
+  font-size:.875rem;outline:none;transition:border-color .2s;margin-bottom:10px;
 }
-.cal-modal input:focus,.cal-modal textarea:focus{border-color:rgba(88,166,255,0.3)}
-.cal-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
-.cal-events-list{margin-top:12px}
+.cal-modal input:focus{border-color:rgba(88,166,255,0.3)}
+.cal-modal-actions{display:flex;gap:8px;justify-content:flex-end}
+.cal-events-list{margin-bottom:14px}
 .cal-event-item{
-  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
-  padding:8px 0;border-bottom:1px solid var(--border);font-size:.875rem;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
+  padding:7px 0;border-bottom:1px solid var(--border);font-size:.875rem;
 }
 .cal-event-item:last-child{border-bottom:none}
 
 /* ── TODO ── */
-.todo-input-row{display:flex;gap:8px;margin-bottom:20px}
+.todo-input-row{display:flex;gap:8px;margin-bottom:18px}
 .todo-input{
   flex:1;background:var(--surface2);border:1px solid var(--border);
   border-radius:8px;padding:10px 16px;color:var(--text);font-family:var(--font);
@@ -258,7 +262,7 @@ nav{
   background:var(--surface);border:1px solid var(--border);
   border-radius:8px;padding:12px 16px;transition:opacity .2s;
 }
-.todo-item.done{opacity:.4}
+.todo-item.done{opacity:.38}
 .todo-item.done .todo-text{text-decoration:line-through;color:var(--text2)}
 .todo-check{
   width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
@@ -267,62 +271,56 @@ nav{
 .todo-check.checked{background:var(--green);border-color:var(--green)}
 .todo-check.checked::after{content:'✓';color:#fff;font-size:11px}
 .todo-text{flex:1;font-size:.9rem}
-.todo-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 4px;transition:color .15s;flex-shrink:0}
+.todo-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 4px;transition:color .15s}
 .todo-del:hover{color:var(--red)}
-.todo-empty{color:var(--text3);font-size:.875rem;text-align:center;padding:24px}
+.todo-empty{color:var(--text3);font-size:.875rem;text-align:center;padding:28px}
 
-/* ── WORD OF DAY ── */
-.word-card{text-align:center;padding:40px}
-.word-of-day{font-size:2.5rem;font-weight:600;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+/* ── WORD ── */
+.word-card{text-align:center;padding:50px 24px}
+.word-of-day{font-size:2.8rem;font-weight:600;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .word-phonetic{font-size:.9rem;color:var(--text3);margin-bottom:16px}
-.word-type{font-size:.75rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:500}
-.word-def{font-size:1rem;color:var(--text2);line-height:1.7;max-width:560px;margin:0 auto 16px}
-.word-example{font-size:.875rem;color:var(--text3);font-style:italic;max-width:480px;margin:0 auto}
+.word-type{font-size:.73rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;font-weight:500}
+.word-def{font-size:1.05rem;color:var(--text2);line-height:1.75;max-width:580px;margin:0 auto 18px}
+.word-example{font-size:.9rem;color:var(--text3);font-style:italic;max-width:500px;margin:0 auto}
 
-/* ── FOOTER ── */
-footer{text-align:center;padding:40px 24px;color:var(--text3);font-size:.8rem;border-top:1px solid var(--border);margin-top:40px;position:relative;z-index:1}
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.18)}
 
 /* ── RESPONSIVE ── */
 @media(max-width:640px){
-  nav{padding:12px 16px}
-  .nav-links{gap:14px}
-  .nav-links a{font-size:.78rem}
-  .section{padding:60px 16px}
-  .gym-meta{gap:16px}
-  .gym-stat-val{font-size:1.5rem}
+  nav{padding:0 16px}
+  .nav-links a{font-size:.76rem;padding:5px 8px}
+  .page-inner{padding:28px 16px 50px}
+  .gym-meta{gap:18px}
+  .gym-stat-val{font-size:1.6rem}
+  .cal-day{min-height:52px}
 }
-
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:6px;height:6px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
-::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2)}
-
-/* smooth reveal */
-.reveal{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
-.reveal.visible{opacity:1;transform:none}
 </style>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <div class="nav-logo">D-Sewhuk</div>
+  <a class="nav-logo" onclick="navigate('home')">D-Sewhuk</a>
   <div class="nav-links">
-    <a href="#home">Home</a>
-    <a href="#notes">Notes</a>
-    <a href="#gym">Gym</a>
-    <a href="#calendar">Calendar</a>
-    <a href="#todo">To-Do</a>
-    <a href="#word">Word</a>
+    <a data-page="home"     onclick="navigate('home')">Home</a>
+    <a data-page="notes"    onclick="navigate('notes')">Notes</a>
+    <a data-page="gym"      onclick="navigate('gym')">Gym</a>
+    <a data-page="calendar" onclick="navigate('calendar')">Calendar</a>
+    <a data-page="todo"     onclick="navigate('todo')">To-Do</a>
+    <a data-page="word"     onclick="navigate('word')">Word</a>
   </div>
 </nav>
 
-<!-- HERO -->
-<header id="home">
+<!-- ═══════════ HOME ═══════════ -->
+<div class="page" id="page-home">
   <div id="greeting">Good evening</div>
   <div id="clock">00:00:00</div>
   <div id="datestr">Monday, January 1</div>
+
   <div id="weather-widget">
     <span id="weather-icon">⏳</span>
     <span id="weather-text">Fetching weather…</span>
@@ -332,99 +330,120 @@ footer{text-align:center;padding:40px 24px;color:var(--text3);font-size:.8rem;bo
     <button onclick="toggleWeatherEdit()">✏️ Change</button>
   </div>
   <div id="weather-edit-box">
-    <input type="text" id="weather-city-input" placeholder="Enter city, e.g. Buffalo NY" />
+    <input type="text" id="weather-city-input" placeholder="City, e.g. Buffalo NY" />
     <button onclick="searchCity()">Search</button>
-    <button onclick="useGeolocation()">📍 Use my location</button>
+    <button onclick="useGeolocation()">📍 My location</button>
     <button onclick="toggleWeatherEdit()">✕</button>
   </div>
+
   <div class="hero-links">
     <a class="hero-link" href="https://mail.google.com" target="_blank">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
       Gmail
     </a>
-    <a class="hero-link" href="#notes">
+    <a class="hero-link" onclick="navigate('notes')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Notes
     </a>
-    <a class="hero-link" href="#gym">
+    <a class="hero-link" onclick="navigate('gym')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18M6 9v6M18 9v6"/></svg>
       Gym Tracker
     </a>
-    <a class="hero-link" href="#todo">
+    <a class="hero-link" onclick="navigate('calendar')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendar
+    </a>
+    <a class="hero-link" onclick="navigate('todo')">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       To-Do
     </a>
+    <a class="hero-link" onclick="navigate('word')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Word
+    </a>
   </div>
-</header>
+</div>
 
-<!-- NOTES -->
-<section class="section reveal" id="notes">
-  <div class="section-title">Notes</div>
-  <div class="card">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <div class="notes-tabs" id="notes-tabs"></div>
-      <button class="btn-add-note" id="btn-add-note">+ New</button>
-    </div>
-    <textarea class="note-editor" id="note-editor" placeholder="Start typing…"></textarea>
-    <div class="note-actions">
-      <span class="note-saved" id="note-saved">Saved ✓</span>
-      <button class="btn btn-accent" id="btn-save-note">Save</button>
-    </div>
-  </div>
-</section>
-<hr class="section-divider">
-
-<!-- GYM TRACKER -->
-<section class="section reveal" id="gym">
-  <div class="section-title">Gym Tracker</div>
-  <div class="card">
-    <div class="gym-meta">
-      <div class="gym-stat">
-        <div class="gym-stat-val" id="streak-current" style="color:var(--green)">0</div>
-        <div class="gym-stat-label">Current Streak</div>
+<!-- ═══════════ NOTES ═══════════ -->
+<div class="page" id="page-notes">
+  <div class="page-inner">
+    <div class="page-title">Notes</div>
+    <div class="card">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+        <div class="notes-tabs" id="notes-tabs"></div>
+        <button class="btn-add-note" id="btn-add-note">+ New</button>
       </div>
-      <div class="gym-stat">
-        <div class="gym-stat-val" id="streak-longest">0</div>
-        <div class="gym-stat-label">Longest Streak</div>
-      </div>
-      <div class="gym-stat">
-        <div class="gym-stat-val" id="gym-total">0</div>
-        <div class="gym-stat-label">Total Days</div>
+      <textarea class="note-editor" id="note-editor" placeholder="Start typing…" style="height:calc(100vh - 320px);min-height:200px"></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+        <span class="note-saved" id="note-saved">Saved ✓</span>
+        <button class="btn btn-accent" id="btn-save-note">Save</button>
       </div>
     </div>
-    <div class="gym-section-title">Activity — Past Year</div>
-    <div class="heatmap-wrap">
-      <div id="heatmap-container"></div>
-    </div>
-    <p style="font-size:.75rem;color:var(--text3);margin-top:10px">Click any day to toggle gym session</p>
-
-    <div class="gym-section-title">Personal Records</div>
-    <table class="pr-table" id="pr-table">
-      <thead><tr><th>Exercise</th><th>Weight / Reps</th><th>Notes</th><th></th></tr></thead>
-      <tbody id="pr-body"></tbody>
-    </table>
-    <button class="btn" style="margin-top:14px" id="btn-add-pr">+ Add Lift</button>
   </div>
-</section>
-<hr class="section-divider">
+</div>
 
-<!-- CALENDAR -->
-<section class="section reveal" id="calendar">
-  <div class="section-title">Calendar</div>
-  <div class="card">
-    <div class="cal-nav">
-      <button class="cal-btn" id="cal-prev">← Prev</button>
-      <div class="cal-month-label" id="cal-month-label"></div>
-      <button class="cal-btn" id="cal-next">Next →</button>
+<!-- ═══════════ GYM ═══════════ -->
+<div class="page" id="page-gym">
+  <div class="page-inner">
+    <div class="page-title">Gym Tracker</div>
+    <div class="card">
+      <div class="gym-meta">
+        <div>
+          <div class="gym-stat-val" id="streak-current" style="color:var(--green)">0</div>
+          <div class="gym-stat-label">Current Streak</div>
+        </div>
+        <div>
+          <div class="gym-stat-val" id="streak-longest">0</div>
+          <div class="gym-stat-label">Longest Streak</div>
+        </div>
+        <div>
+          <div class="gym-stat-val" id="gym-total">0</div>
+          <div class="gym-stat-label">Total Days</div>
+        </div>
+      </div>
+
+      <div class="sub-title">Activity — Past Year</div>
+      <div class="heatmap-wrap">
+        <div id="heatmap-container"></div>
+      </div>
+      <p style="font-size:.73rem;color:var(--text3);margin-top:8px">Click any day to toggle a gym session</p>
+
+      <div class="sub-title">Personal Records</div>
+      <table class="pr-table" id="pr-table">
+        <thead>
+          <tr>
+            <th>Exercise</th>
+            <th>Weight / Reps</th>
+            <th>Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="pr-body"></tbody>
+      </table>
+      <button class="btn" style="margin-top:14px" id="btn-add-pr">+ Add Lift</button>
     </div>
-    <div class="cal-grid" id="cal-grid"></div>
   </div>
-</section>
+</div>
+
+<!-- ═══════════ CALENDAR ═══════════ -->
+<div class="page" id="page-calendar">
+  <div class="page-inner">
+    <div class="page-title">Calendar</div>
+    <div class="card">
+      <div class="cal-nav">
+        <button class="cal-btn" id="cal-prev">← Prev</button>
+        <div class="cal-month-label" id="cal-month-label"></div>
+        <button class="cal-btn" id="cal-next">Next →</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+  </div>
+</div>
 
 <!-- CALENDAR MODAL -->
 <div class="cal-modal" id="cal-modal">
   <div class="cal-modal-box">
-    <div class="cal-modal-title" id="cal-modal-title">Events for Jan 1</div>
+    <div class="cal-modal-title" id="cal-modal-title"></div>
     <div class="cal-events-list" id="cal-events-list"></div>
     <input type="text" id="cal-event-input" placeholder="Add an event…" />
     <div class="cal-modal-actions">
@@ -433,117 +452,92 @@ footer{text-align:center;padding:40px 24px;color:var(--text3);font-size:.8rem;bo
     </div>
   </div>
 </div>
-<hr class="section-divider">
 
-<!-- TODO -->
-<section class="section reveal" id="todo">
-  <div class="section-title">Daily To-Do</div>
-  <div class="card">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <span style="font-size:.8rem;color:var(--text3)" id="todo-date-label"></span>
-      <button class="btn btn-danger" id="btn-clear-done" style="font-size:.78rem;padding:5px 12px">Clear done</button>
+<!-- ═══════════ TO-DO ═══════════ -->
+<div class="page" id="page-todo">
+  <div class="page-inner">
+    <div class="page-title">Daily To-Do</div>
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <span style="font-size:.78rem;color:var(--text3)" id="todo-date-label"></span>
+        <button class="btn btn-danger" id="btn-clear-done" style="font-size:.78rem;padding:5px 12px">Clear done</button>
+      </div>
+      <div class="todo-input-row">
+        <input type="text" class="todo-input" id="todo-input" placeholder="Add a task… press Enter" />
+        <button class="btn btn-accent" id="btn-add-todo">Add</button>
+      </div>
+      <div class="todo-list" id="todo-list"></div>
     </div>
-    <div class="todo-input-row">
-      <input type="text" class="todo-input" id="todo-input" placeholder="Add a task… press Enter" />
-      <button class="btn btn-accent" id="btn-add-todo">Add</button>
+  </div>
+</div>
+
+<!-- ═══════════ WORD ═══════════ -->
+<div class="page" id="page-word">
+  <div class="page-inner">
+    <div class="page-title">Word of the Day</div>
+    <div class="card word-card">
+      <div class="word-of-day"  id="wotd-word"></div>
+      <div class="word-phonetic" id="wotd-phonetic"></div>
+      <div class="word-type"    id="wotd-type"></div>
+      <div class="word-def"     id="wotd-def"></div>
+      <div class="word-example" id="wotd-example"></div>
     </div>
-    <div class="todo-list" id="todo-list"></div>
   </div>
-</section>
-<hr class="section-divider">
-
-<!-- WORD OF DAY -->
-<section class="section reveal" id="word">
-  <div class="section-title">Word of the Day</div>
-  <div class="card word-card">
-    <div class="word-of-day" id="wotd-word"></div>
-    <div class="word-phonetic" id="wotd-phonetic"></div>
-    <div class="word-type" id="wotd-type"></div>
-    <div class="word-def" id="wotd-def"></div>
-    <div class="word-example" id="wotd-example"></div>
-  </div>
-</section>
-
-<footer>Built with ♥ · <a href="https://github.com/D-Sewhuk" style="color:var(--text2);text-decoration:none">D-Sewhuk</a></footer>
+</div>
 
 <script>
+/* ══════════════════════════════════════════
+   ROUTER
+══════════════════════════════════════════ */
+function navigate(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById('page-' + pageId);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('.nav-links a').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === pageId);
+  });
+  history.replaceState(null, '', '#' + pageId);
+}
+
+// Init from hash or default to home
+const initPage = (location.hash.slice(1)) || 'home';
+navigate(initPage);
+window.addEventListener('popstate', () => navigate(location.hash.slice(1) || 'home'));
+
 /* ══════════════════════════════════════════
    AMBIENT BACKGROUND
 ══════════════════════════════════════════ */
 function updateAmbient() {
   const h = new Date().getHours();
   let bg, glow;
-  if (h >= 22 || h < 5) {        // Night
-    bg = '#080c14';
-    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(15,25,60,0.4) 0%, transparent 70%)';
-  } else if (h >= 5 && h < 8) {  // Dawn
-    bg = '#0c0a10';
-    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(80,40,20,0.4) 0%, transparent 70%)';
-  } else if (h >= 8 && h < 17) { // Day
-    bg = '#090d16';
-    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(20,50,100,0.45) 0%, transparent 70%)';
-  } else if (h >= 17 && h < 20) {// Dusk
-    bg = '#0b0910';
-    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(60,20,60,0.4) 0%, transparent 70%)';
-  } else {                        // Evening
-    bg = '#090c14';
-    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(20,20,70,0.4) 0%, transparent 70%)';
-  }
+  if      (h >= 22 || h < 5)  { bg='#080c14'; glow='rgba(15,25,60,0.4)'; }
+  else if (h >= 5  && h < 8)  { bg='#0c0a10'; glow='rgba(80,40,20,0.38)'; }
+  else if (h >= 8  && h < 17) { bg='#090d16'; glow='rgba(20,50,100,0.42)'; }
+  else if (h >= 17 && h < 20) { bg='#0b0910'; glow='rgba(60,20,60,0.38)'; }
+  else                         { bg='#090c14'; glow='rgba(20,20,70,0.38)'; }
   document.body.style.background = bg;
-  document.body.style.setProperty('--bg', bg);
-  document.body.querySelector('body') || document.documentElement;
-  document.styleSheets[0] && null;
-  document.body.style.cssText += '';
-  const pseudo = document.getElementById('pseudo-bg');
-  if (!pseudo) {
-    const s = document.createElement('style');
-    s.id = 'pseudo-bg';
-    s.textContent = `body::before{background:${glow}!important}`;
-    document.head.appendChild(s);
-  } else {
-    pseudo.textContent = `body::before{background:${glow}!important}`;
-  }
+  let ps = document.getElementById('_ps');
+  if (!ps) { ps = document.createElement('style'); ps.id='_ps'; document.head.appendChild(ps); }
+  ps.textContent = `body::before{background:radial-gradient(ellipse 80% 50% at 50% -5%,${glow} 0%,transparent 70%)!important}`;
 }
 updateAmbient();
 setInterval(updateAmbient, 60000);
 
 /* ══════════════════════════════════════════
-   CLOCK & GREETING  (Eastern Time)
+   CLOCK (Eastern Time)
 ══════════════════════════════════════════ */
 const TZ = 'America/New_York';
 function updateClock() {
   const now = new Date();
-
-  // Time — HH:MM:SS in Eastern
-  const timeStr = now.toLocaleTimeString('en-US', {
-    timeZone: TZ,
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
+  document.getElementById('clock').textContent = now.toLocaleTimeString('en-US',{
+    timeZone:TZ, hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
   });
-  document.getElementById('clock').textContent = timeStr;
-
-  // Date — full weekday + month + day
-  const dateDisplay = now.toLocaleDateString('en-US', {
-    timeZone: TZ,
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
+  document.getElementById('datestr').textContent = now.toLocaleDateString('en-US',{
+    timeZone:TZ, weekday:'long', month:'long', day:'numeric', year:'numeric'
   });
-  document.getElementById('datestr').textContent = dateDisplay;
-
-  // Greeting based on Eastern hour
-  const estHour = parseInt(now.toLocaleString('en-US', {
-    timeZone: TZ,
-    hour: 'numeric',
-    hour12: false
-  }), 10);
-  let greet = 'Good evening';
-  if (estHour >= 5 && estHour < 12)  greet = 'Good morning';
-  else if (estHour >= 12 && estHour < 17) greet = 'Good afternoon';
-  document.getElementById('greeting').textContent = greet;
+  const h = parseInt(now.toLocaleString('en-US',{timeZone:TZ,hour:'numeric',hour12:false}),10);
+  document.getElementById('greeting').textContent =
+    h >= 5 && h < 12 ? 'Good morning' : h >= 12 && h < 17 ? 'Good afternoon' : 'Good evening';
 }
 updateClock();
 setInterval(updateClock, 1000);
@@ -561,539 +555,296 @@ const WMO = {
   82:{d:'Heavy showers',i:'⛈️'},85:{d:'Snow showers',i:'🌨️'},86:{d:'Heavy snow showers',i:'🌨️'},
   95:{d:'Thunderstorm',i:'⛈️'},96:{d:'Thunderstorm',i:'⛈️'},99:{d:'Heavy thunderstorm',i:'⛈️'}
 };
+const DEFAULT_LOC = {lat:43.1566,lon:-77.6088,label:'Rochester, NY'};
+let weatherLoc = JSON.parse(localStorage.getItem('dashboard_weather_loc')||'null') || DEFAULT_LOC;
 
-// Default: Rochester, NY — overridden by localStorage or geolocation
-const DEFAULT_LOC = { lat: 43.1566, lon: -77.6088, label: 'Rochester, NY' };
-let weatherLoc = JSON.parse(localStorage.getItem('dashboard_weather_loc') || 'null') || DEFAULT_LOC;
+function saveWeatherLoc(loc){ weatherLoc=loc; localStorage.setItem('dashboard_weather_loc',JSON.stringify(loc)); }
 
-function saveWeatherLoc(loc) {
-  weatherLoc = loc;
-  localStorage.setItem('dashboard_weather_loc', JSON.stringify(loc));
-}
-
-function fetchWeather(lat, lon) {
-  document.getElementById('weather-icon').textContent = '⏳';
-  document.getElementById('weather-text').textContent = 'Loading…';
+function fetchWeather(lat,lon){
+  document.getElementById('weather-icon').textContent='⏳';
+  document.getElementById('weather-text').textContent='Loading…';
   fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`)
-    .then(r => r.json())
-    .then(d => {
-      const cw = d.current_weather;
-      const info = WMO[cw.weathercode] || {d:'Unknown',i:'🌡️'};
-      document.getElementById('weather-icon').textContent = info.i;
-      document.getElementById('weather-text').textContent =
-        `${Math.round(cw.temperature)}°F · ${info.d}`;
+    .then(r=>r.json())
+    .then(d=>{
+      const cw=d.current_weather, info=WMO[cw.weathercode]||{d:'Unknown',i:'🌡️'};
+      document.getElementById('weather-icon').textContent=info.i;
+      document.getElementById('weather-text').textContent=`${Math.round(cw.temperature)}°F · ${info.d}`;
     })
-    .catch(() => {
-      document.getElementById('weather-icon').textContent = '❌';
-      document.getElementById('weather-text').textContent = 'Weather unavailable';
-    });
+    .catch(()=>{ document.getElementById('weather-text').textContent='Unavailable'; });
 }
-
-function updateWeatherLabel(label) {
-  document.getElementById('weather-city-label').textContent = label;
+function updateWeatherLabel(lbl){ document.getElementById('weather-city-label').textContent=lbl; }
+function toggleWeatherEdit(){
+  const box=document.getElementById('weather-edit-box'),loc=document.getElementById('weather-location');
+  const open=box.style.display==='flex';
+  box.style.display=open?'none':'flex'; loc.style.display=open?'':'none';
+  if(!open) document.getElementById('weather-city-input').focus();
 }
-
-function toggleWeatherEdit() {
-  const box = document.getElementById('weather-edit-box');
-  const loc = document.getElementById('weather-location');
-  const open = box.style.display === 'flex';
-  box.style.display = open ? 'none' : 'flex';
-  loc.style.display = open ? '' : 'none';
-  if (!open) document.getElementById('weather-city-input').focus();
+function searchCity(){
+  const q=document.getElementById('weather-city-input').value.trim(); if(!q) return;
+  document.getElementById('weather-text').textContent='Searching…';
+  fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1&language=en&format=json`)
+    .then(r=>r.json())
+    .then(data=>{
+      if(!data.results?.length){ document.getElementById('weather-text').textContent='City not found'; return; }
+      const r=data.results[0], label=[r.name,r.admin1,r.country_code].filter(Boolean).join(', ');
+      saveWeatherLoc({lat:r.latitude,lon:r.longitude,label});
+      updateWeatherLabel(label); fetchWeather(r.latitude,r.longitude);
+      toggleWeatherEdit(); document.getElementById('weather-city-input').value='';
+    }).catch(()=>{ document.getElementById('weather-text').textContent='Search failed'; });
 }
-
-function searchCity() {
-  const query = document.getElementById('weather-city-input').value.trim();
-  if (!query) return;
-  document.getElementById('weather-text').textContent = 'Searching…';
-  fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`)
-    .then(r => r.json())
-    .then(data => {
-      if (!data.results || !data.results.length) {
-        document.getElementById('weather-text').textContent = 'City not found';
-        return;
-      }
-      const r = data.results[0];
-      const label = [r.name, r.admin1, r.country_code].filter(Boolean).join(', ');
-      saveWeatherLoc({ lat: r.latitude, lon: r.longitude, label });
-      updateWeatherLabel(label);
-      fetchWeather(r.latitude, r.longitude);
-      toggleWeatherEdit();
-      document.getElementById('weather-city-input').value = '';
-    })
-    .catch(() => {
-      document.getElementById('weather-text').textContent = 'Search failed';
-    });
+function useGeolocation(){
+  if(!navigator.geolocation){ document.getElementById('weather-text').textContent='Unsupported'; return; }
+  document.getElementById('weather-text').textContent='Detecting…';
+  navigator.geolocation.getCurrentPosition(p=>{
+    const loc={lat:p.coords.latitude,lon:p.coords.longitude,label:'Current location'};
+    saveWeatherLoc(loc); updateWeatherLabel('Current location');
+    fetchWeather(loc.lat,loc.lon); toggleWeatherEdit();
+  },()=>{ document.getElementById('weather-text').textContent='Location denied'; });
 }
-
-function useGeolocation() {
-  if (!navigator.geolocation) {
-    document.getElementById('weather-text').textContent = 'Geolocation unsupported';
-    return;
-  }
-  document.getElementById('weather-text').textContent = 'Detecting location…';
-  navigator.geolocation.getCurrentPosition(
-    p => {
-      const loc = { lat: p.coords.latitude, lon: p.coords.longitude, label: 'Current location' };
-      saveWeatherLoc(loc);
-      updateWeatherLabel('Current location');
-      fetchWeather(loc.lat, loc.lon);
-      toggleWeatherEdit();
-    },
-    () => { document.getElementById('weather-text').textContent = 'Location denied'; }
-  );
-}
-
-document.getElementById('weather-city-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') searchCity();
-  if (e.key === 'Escape') toggleWeatherEdit();
+document.getElementById('weather-city-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter') searchCity(); if(e.key==='Escape') toggleWeatherEdit();
 });
-
-// Init
 updateWeatherLabel(weatherLoc.label);
-fetchWeather(weatherLoc.lat, weatherLoc.lon);
+fetchWeather(weatherLoc.lat,weatherLoc.lon);
 
 /* ══════════════════════════════════════════
    NOTES
 ══════════════════════════════════════════ */
-let notes = JSON.parse(localStorage.getItem('dashboard_notes') || 'null') ||
-  [{id:1, title:'Quick Notes', content:''}];
+let notes = JSON.parse(localStorage.getItem('dashboard_notes')||'null') || [{id:1,title:'Quick Notes',content:''}];
 let activeNote = notes[0].id;
-
-function saveNotes() { localStorage.setItem('dashboard_notes', JSON.stringify(notes)); }
-function getNoteById(id) { return notes.find(n => n.id === id); }
-
-function renderNotes() {
-  const tabs = document.getElementById('notes-tabs');
-  tabs.innerHTML = '';
-  notes.forEach(n => {
-    const tab = document.createElement('button');
-    tab.className = 'note-tab' + (n.id === activeNote ? ' active' : '');
-    tab.textContent = n.title;
-    tab.onclick = () => { activeNote = n.id; renderNotes(); };
-    const del = document.createElement('button');
-    del.className = 'del-tab';
-    del.textContent = '×';
-    del.onclick = (e) => {
-      e.stopPropagation();
-      if (notes.length === 1) return;
-      notes = notes.filter(x => x.id !== n.id);
-      activeNote = notes[0].id;
-      saveNotes(); renderNotes();
-    };
-    tab.appendChild(del);
-    tabs.appendChild(tab);
+function saveNotes(){ localStorage.setItem('dashboard_notes',JSON.stringify(notes)); }
+function getNoteById(id){ return notes.find(n=>n.id===id); }
+function renderNotes(){
+  const tabs=document.getElementById('notes-tabs'); tabs.innerHTML='';
+  notes.forEach(n=>{
+    const tab=document.createElement('button');
+    tab.className='note-tab'+(n.id===activeNote?' active':'');
+    tab.textContent=n.title;
+    tab.onclick=()=>{ activeNote=n.id; renderNotes(); };
+    const del=document.createElement('button'); del.className='del-tab'; del.textContent='×';
+    del.onclick=e=>{ e.stopPropagation(); if(notes.length===1) return; notes=notes.filter(x=>x.id!==n.id); activeNote=notes[0].id; saveNotes(); renderNotes(); };
+    tab.appendChild(del); tabs.appendChild(tab);
   });
-  const note = getNoteById(activeNote);
-  document.getElementById('note-editor').value = note ? note.content : '';
+  const note=getNoteById(activeNote);
+  document.getElementById('note-editor').value=note?note.content:'';
 }
-
-document.getElementById('btn-add-note').onclick = () => {
-  const title = prompt('Note name:', 'Untitled');
-  if (!title) return;
-  const id = Date.now();
-  notes.push({id, title, content:''});
-  activeNote = id;
-  saveNotes(); renderNotes();
+document.getElementById('btn-add-note').onclick=()=>{
+  const title=prompt('Note name:','Untitled'); if(!title) return;
+  const id=Date.now(); notes.push({id,title,content:''}); activeNote=id; saveNotes(); renderNotes();
 };
-
-let saveTimeout;
-document.getElementById('note-editor').addEventListener('input', () => {
-  const note = getNoteById(activeNote);
-  if (note) note.content = document.getElementById('note-editor').value;
-  clearTimeout(saveTimeout);
-  saveTimeout = setTimeout(() => { saveNotes(); showSaved(); }, 800);
+let saveTO;
+document.getElementById('note-editor').addEventListener('input',()=>{
+  const n=getNoteById(activeNote); if(n) n.content=document.getElementById('note-editor').value;
+  clearTimeout(saveTO); saveTO=setTimeout(()=>{ saveNotes(); showSaved(); },700);
 });
-
-document.getElementById('btn-save-note').onclick = () => {
-  const note = getNoteById(activeNote);
-  if (note) note.content = document.getElementById('note-editor').value;
+document.getElementById('btn-save-note').onclick=()=>{
+  const n=getNoteById(activeNote); if(n) n.content=document.getElementById('note-editor').value;
   saveNotes(); showSaved();
 };
-
-function showSaved() {
-  const s = document.getElementById('note-saved');
-  s.style.opacity = '1';
-  setTimeout(() => s.style.opacity = '0', 1500);
-}
-
+function showSaved(){ const s=document.getElementById('note-saved'); s.style.opacity='1'; setTimeout(()=>s.style.opacity='0',1500); }
 renderNotes();
 
 /* ══════════════════════════════════════════
-   GYM TRACKER — HEATMAP
+   GYM TRACKER
 ══════════════════════════════════════════ */
-let gymDays = JSON.parse(localStorage.getItem('dashboard_gym') || '[]');
-function saveGym() { localStorage.setItem('dashboard_gym', JSON.stringify(gymDays)); }
-function dateStr(d) {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function todayStr() { return dateStr(new Date()); }
+let gymDays=JSON.parse(localStorage.getItem('dashboard_gym')||'[]');
+function saveGym(){ localStorage.setItem('dashboard_gym',JSON.stringify(gymDays)); }
+function dateStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function todayStr(){ return dateStr(new Date()); }
 
-function buildHeatmap() {
-  const container = document.getElementById('heatmap-container');
-  container.innerHTML = '';
-  const today = new Date();
-  const startDate = new Date(today);
-  startDate.setDate(startDate.getDate() - 364);
-  // align to Sunday
-  startDate.setDate(startDate.getDate() - startDate.getDay());
-
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'display:flex;gap:0;align-items:flex-start';
-
-  // Day labels
-  const dayLabels = document.createElement('div');
-  dayLabels.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-right:6px;padding-top:20px';
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d,i) => {
-    const lbl = document.createElement('div');
-    lbl.className = 'heatmap-day-label';
-    lbl.style.height = '13px';
-    lbl.textContent = i % 2 === 1 ? d : '';
-    dayLabels.appendChild(lbl);
+function buildHeatmap(){
+  const container=document.getElementById('heatmap-container'); container.innerHTML='';
+  const today=new Date(), start=new Date(today);
+  start.setDate(start.getDate()-364);
+  start.setDate(start.getDate()-start.getDay());
+  const wrap=document.createElement('div'); wrap.style.cssText='display:flex;gap:0;align-items:flex-start';
+  const dayCol=document.createElement('div'); dayCol.style.cssText='display:flex;flex-direction:column;gap:3px;margin-right:6px;padding-top:20px';
+  ['S','M','T','W','T','F','S'].forEach((d,i)=>{
+    const l=document.createElement('div'); l.className='heatmap-day-label'; l.textContent=i%2===1?d:''; dayCol.appendChild(l);
   });
-  wrapper.appendChild(dayLabels);
-
-  const cols = document.createElement('div');
-  cols.style.cssText = 'display:flex;flex-direction:column;gap:0';
-
-  // Month labels row
-  const monthRow = document.createElement('div');
-  monthRow.style.cssText = 'display:flex;gap:3px;margin-bottom:3px;height:16px';
-
-  const gridRow = document.createElement('div');
-  gridRow.style.cssText = 'display:flex;gap:3px';
-
-  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  let lastMonth = -1;
-  let cursor = new Date(startDate);
-  let col = 0;
-
-  while (cursor <= today || cursor.getDay() !== 0) {
-    const colDiv = document.createElement('div');
-    colDiv.style.cssText = 'display:flex;flex-direction:column;gap:3px';
-
-    // Month label for this column
-    const firstDayOfCol = new Date(cursor);
-    const mLabel = document.createElement('div');
-    mLabel.style.cssText = 'font-size:.62rem;color:rgba(255,255,255,0.25);height:16px;display:flex;align-items:center;width:13px';
-    if (firstDayOfCol.getMonth() !== lastMonth) {
-      mLabel.textContent = monthNames[firstDayOfCol.getMonth()];
-      lastMonth = firstDayOfCol.getMonth();
+  wrap.appendChild(dayCol);
+  const gridWrap=document.createElement('div'); gridWrap.style.cssText='display:flex;flex-direction:column;gap:0';
+  const gridRow=document.createElement('div'); gridRow.style.cssText='display:flex;gap:3px';
+  const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let lastM=-1, cursor=new Date(start);
+  while(cursor<=today||cursor.getDay()!==0){
+    const colD=document.createElement('div'); colD.style.cssText='display:flex;flex-direction:column;gap:3px';
+    const mLbl=document.createElement('div'); mLbl.style.cssText='font-size:.62rem;color:rgba(255,255,255,0.22);height:16px;display:flex;align-items:center;width:13px';
+    if(cursor.getMonth()!==lastM){ mLbl.textContent=mNames[cursor.getMonth()]; lastM=cursor.getMonth(); }
+    for(let day=0;day<7;day++){
+      const cd=new Date(cursor); cd.setDate(cursor.getDate()+day);
+      const ds=dateStr(cd), cell=document.createElement('div');
+      cell.className='heatmap-cell'+(gymDays.includes(ds)?' gym-day':'')+(ds===todayStr()?' today':'');
+      cell.title=ds;
+      if(cd>today) cell.style.opacity='0.12';
+      else cell.onclick=()=>{ gymDays.includes(ds)?gymDays=gymDays.filter(x=>x!==ds):gymDays.push(ds); saveGym(); buildHeatmap(); updateStreaks(); };
+      colD.appendChild(cell);
     }
-    cols.appendChild(mLabel); // will reorder below
-
-    for (let day = 0; day < 7; day++) {
-      const cellDate = new Date(cursor);
-      cellDate.setDate(cursor.getDate() + day);
-      const ds = dateStr(cellDate);
-      const cell = document.createElement('div');
-      cell.className = 'heatmap-cell' + (gymDays.includes(ds) ? ' gym-day' : '') + (ds === todayStr() ? ' today' : '');
-      cell.title = ds;
-      if (cellDate > today) cell.style.opacity = '0.15';
-      else {
-        cell.onclick = () => {
-          if (gymDays.includes(ds)) gymDays = gymDays.filter(x => x !== ds);
-          else gymDays.push(ds);
-          saveGym();
-          buildHeatmap();
-          updateStreaks();
-        };
-      }
-      colDiv.appendChild(cell);
-    }
-
-    // We need to reorganize: build as columns
-    cursor.setDate(cursor.getDate() + 7);
-    col++;
-
-    // Combine month label and colDiv
-    const colWrap = document.createElement('div');
-    colWrap.style.cssText = 'display:flex;flex-direction:column;gap:3px';
-    colWrap.appendChild(mLabel);
-    colWrap.appendChild(colDiv);
-    gridRow.appendChild(colWrap);
+    cursor.setDate(cursor.getDate()+7);
+    const colWrap=document.createElement('div'); colWrap.style.cssText='display:flex;flex-direction:column;gap:3px';
+    colWrap.appendChild(mLbl); colWrap.appendChild(colD); gridRow.appendChild(colWrap);
   }
-
-  wrapper.appendChild(gridRow);
-  container.appendChild(wrapper);
+  wrap.appendChild(gridRow); container.appendChild(wrap);
 }
 
-function updateStreaks() {
-  const sorted = [...gymDays].sort();
-  let current = 0, longest = 0, streak = 0;
-  const today = new Date();
-  let check = new Date(today);
-
-  // current streak (backwards from today)
-  while (true) {
-    if (gymDays.includes(dateStr(check))) { current++; check.setDate(check.getDate()-1); }
-    else if (dateStr(check) === todayStr()) { check.setDate(check.getDate()-1); }
+function updateStreaks(){
+  const sorted=[...gymDays].sort();
+  let current=0, longest=0, run=0, prev=null;
+  const td=new Date(), check=new Date(td);
+  while(true){
+    if(gymDays.includes(dateStr(check))){ current++; check.setDate(check.getDate()-1); }
+    else if(dateStr(check)===todayStr()){ check.setDate(check.getDate()-1); }
     else break;
   }
-
-  // longest streak
-  let prev = null, run = 0;
-  sorted.forEach(ds => {
-    if (!prev) { run = 1; }
-    else {
-      const d = new Date(ds), p = new Date(prev);
-      const diff = (d - p) / 86400000;
-      run = diff === 1 ? run + 1 : 1;
-    }
-    longest = Math.max(longest, run);
-    prev = ds;
-  });
-
-  document.getElementById('streak-current').textContent = current;
-  document.getElementById('streak-longest').textContent = longest;
-  document.getElementById('gym-total').textContent = gymDays.length;
+  sorted.forEach(ds=>{ run=prev&&(new Date(ds)-new Date(prev))/86400000===1?run+1:1; longest=Math.max(longest,run); prev=ds; });
+  document.getElementById('streak-current').textContent=current;
+  document.getElementById('streak-longest').textContent=longest;
+  document.getElementById('gym-total').textContent=gymDays.length;
 }
 
-buildHeatmap();
-updateStreaks();
+buildHeatmap(); updateStreaks();
 
-/* ── PR TABLE ── */
-let prs = JSON.parse(localStorage.getItem('dashboard_prs') || '[]');
-function savePRs() { localStorage.setItem('dashboard_prs', JSON.stringify(prs)); }
-
-function renderPRs() {
-  const tbody = document.getElementById('pr-body');
-  tbody.innerHTML = '';
-  prs.forEach((pr, i) => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input value="${pr.exercise||''}" placeholder="e.g. Bench Press" onchange="prs[${i}].exercise=this.value;savePRs()"/></td>
-      <td><input value="${pr.weight||''}" placeholder="e.g. 225 lbs × 5" onchange="prs[${i}].weight=this.value;savePRs()" style="width:130px"/></td>
-      <td><input value="${pr.notes||''}" placeholder="Notes" onchange="prs[${i}].notes=this.value;savePRs()"/></td>
-      <td><button class="pr-del" onclick="prs.splice(${i},1);savePRs();renderPRs()">✕</button></td>`;
+let prs=JSON.parse(localStorage.getItem('dashboard_prs')||'[]');
+function savePRs(){ localStorage.setItem('dashboard_prs',JSON.stringify(prs)); }
+function renderPRs(){
+  const tbody=document.getElementById('pr-body'); tbody.innerHTML='';
+  prs.forEach((pr,i)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td><input value="${pr.exercise||''}" placeholder="e.g. Bench Press" onchange="prs[${i}].exercise=this.value;savePRs()"/></td><td><input value="${pr.weight||''}" placeholder="e.g. 225 lbs × 5" onchange="prs[${i}].weight=this.value;savePRs()" style="width:130px"/></td><td><input value="${pr.notes||''}" placeholder="Notes" onchange="prs[${i}].notes=this.value;savePRs()"/></td><td><button class="pr-del" onclick="prs.splice(${i},1);savePRs();renderPRs()">✕</button></td>`;
     tbody.appendChild(tr);
   });
 }
-
-document.getElementById('btn-add-pr').onclick = () => {
-  prs.push({exercise:'',weight:'',notes:''});
-  savePRs(); renderPRs();
-};
+document.getElementById('btn-add-pr').onclick=()=>{ prs.push({exercise:'',weight:'',notes:''}); savePRs(); renderPRs(); };
 renderPRs();
 
 /* ══════════════════════════════════════════
    CALENDAR
 ══════════════════════════════════════════ */
-let calEvents = JSON.parse(localStorage.getItem('dashboard_cal') || '{}');
-let calView = { year: new Date().getFullYear(), month: new Date().getMonth() };
-let calSelectedDate = null;
+let calEvents=JSON.parse(localStorage.getItem('dashboard_cal')||'{}');
+let calView={year:new Date().getFullYear(),month:new Date().getMonth()};
+let calSelectedDate=null;
+function saveCalEvents(){ localStorage.setItem('dashboard_cal',JSON.stringify(calEvents)); }
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-function saveCalEvents() { localStorage.setItem('dashboard_cal', JSON.stringify(calEvents)); }
-
-function renderCalendar() {
-  const { year, month } = calView;
-  const monthNames = ['January','February','March','April','May','June',
-    'July','August','September','October','November','December'];
-  document.getElementById('cal-month-label').textContent = `${monthNames[month]} ${year}`;
-  const grid = document.getElementById('cal-grid');
-  grid.innerHTML = '';
-  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
-    const h = document.createElement('div');
-    h.className = 'cal-header'; h.textContent = d;
-    grid.appendChild(h);
-  });
-  const firstDay = new Date(year, month, 1).getDay();
-  const daysInMonth = new Date(year, month+1, 0).getDate();
-  const daysInPrev = new Date(year, month, 0).getDate();
-  const today = new Date();
-
-  for (let i = 0; i < firstDay; i++) {
-    const d = document.createElement('div');
-    d.className = 'cal-day other-month';
-    const n = document.createElement('div'); n.className='cal-day-num';
-    n.textContent = daysInPrev - firstDay + 1 + i;
-    d.appendChild(n); grid.appendChild(d);
+function renderCalendar(){
+  const {year,month}=calView;
+  document.getElementById('cal-month-label').textContent=`${MONTHS[month]} ${year}`;
+  const grid=document.getElementById('cal-grid'); grid.innerHTML='';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d=>{ const h=document.createElement('div'); h.className='cal-header'; h.textContent=d; grid.appendChild(h); });
+  const firstDay=new Date(year,month,1).getDay(), daysInMonth=new Date(year,month+1,0).getDate(), daysInPrev=new Date(year,month,0).getDate();
+  const today=new Date();
+  for(let i=0;i<firstDay;i++){ const d=document.createElement('div'); d.className='cal-day other-month'; const n=document.createElement('div'); n.className='cal-day-num'; n.textContent=daysInPrev-firstDay+1+i; d.appendChild(n); grid.appendChild(d); }
+  for(let day=1;day<=daysInMonth;day++){
+    const d=document.createElement('div'); d.className='cal-day';
+    const ds=`${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    if(today.getFullYear()===year&&today.getMonth()===month&&today.getDate()===day) d.classList.add('today');
+    const n=document.createElement('div'); n.className='cal-day-num'; n.textContent=day; d.appendChild(n);
+    (calEvents[ds]||[]).slice(0,3).forEach(ev=>{ const dot=document.createElement('span'); dot.className='cal-event-dot'; dot.textContent=ev; d.appendChild(dot); });
+    d.onclick=()=>openCalModal(ds); grid.appendChild(d);
   }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const d = document.createElement('div');
-    d.className = 'cal-day';
-    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    if (today.getFullYear()===year && today.getMonth()===month && today.getDate()===day)
-      d.classList.add('today');
-    const n = document.createElement('div'); n.className='cal-day-num';
-    n.textContent = day; d.appendChild(n);
-    if (calEvents[ds]) {
-      calEvents[ds].slice(0,3).forEach(ev => {
-        const dot = document.createElement('span');
-        dot.className = 'cal-event-dot'; dot.textContent = ev;
-        d.appendChild(dot);
-      });
-    }
-    d.onclick = () => openCalModal(ds);
-    grid.appendChild(d);
-  }
-
-  const remaining = 42 - firstDay - daysInMonth;
-  for (let i = 1; i <= remaining; i++) {
-    const d = document.createElement('div');
-    d.className = 'cal-day other-month';
-    const n = document.createElement('div'); n.className='cal-day-num';
-    n.textContent = i; d.appendChild(n); grid.appendChild(d);
-  }
+  const rem=42-firstDay-daysInMonth;
+  for(let i=1;i<=rem;i++){ const d=document.createElement('div'); d.className='cal-day other-month'; const n=document.createElement('div'); n.className='cal-day-num'; n.textContent=i; d.appendChild(n); grid.appendChild(d); }
 }
 
-function openCalModal(ds) {
-  calSelectedDate = ds;
-  const [y,m,d] = ds.split('-');
-  const monthNames = ['January','February','March','April','May','June',
-    'July','August','September','October','November','December'];
-  document.getElementById('cal-modal-title').textContent =
-    `${monthNames[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
-  renderCalEvents();
-  document.getElementById('cal-modal').classList.add('open');
+function openCalModal(ds){
+  calSelectedDate=ds; const [y,m,d]=ds.split('-');
+  document.getElementById('cal-modal-title').textContent=`${MONTHS[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
+  renderCalEvents(); document.getElementById('cal-modal').classList.add('open');
   document.getElementById('cal-event-input').focus();
 }
-
-function renderCalEvents() {
-  const list = document.getElementById('cal-events-list');
-  const evs = calEvents[calSelectedDate] || [];
-  list.innerHTML = '';
-  if (!evs.length) { list.innerHTML = '<p style="color:var(--text3);font-size:.8rem;padding:4px 0">No events yet.</p>'; return; }
-  evs.forEach((ev, i) => {
-    const item = document.createElement('div');
-    item.className = 'cal-event-item';
-    item.innerHTML = `<span>${ev}</span><button class="pr-del" onclick="calEvents['${calSelectedDate}'].splice(${i},1);saveCalEvents();renderCalEvents();renderCalendar()">✕</button>`;
-    list.appendChild(item);
-  });
+function renderCalEvents(){
+  const list=document.getElementById('cal-events-list'), evs=calEvents[calSelectedDate]||[];
+  list.innerHTML='';
+  if(!evs.length){ list.innerHTML='<p style="color:var(--text3);font-size:.8rem">No events yet.</p>'; return; }
+  evs.forEach((ev,i)=>{ const item=document.createElement('div'); item.className='cal-event-item'; item.innerHTML=`<span>${ev}</span><button class="pr-del" onclick="calEvents['${calSelectedDate}'].splice(${i},1);saveCalEvents();renderCalEvents();renderCalendar()">✕</button>`; list.appendChild(item); });
 }
-
-document.getElementById('cal-modal-add').onclick = () => {
-  const val = document.getElementById('cal-event-input').value.trim();
-  if (!val) return;
-  if (!calEvents[calSelectedDate]) calEvents[calSelectedDate] = [];
-  calEvents[calSelectedDate].push(val);
-  saveCalEvents(); renderCalEvents(); renderCalendar();
-  document.getElementById('cal-event-input').value = '';
+document.getElementById('cal-modal-add').onclick=()=>{
+  const val=document.getElementById('cal-event-input').value.trim(); if(!val) return;
+  if(!calEvents[calSelectedDate]) calEvents[calSelectedDate]=[];
+  calEvents[calSelectedDate].push(val); saveCalEvents(); renderCalEvents(); renderCalendar();
+  document.getElementById('cal-event-input').value='';
 };
-document.getElementById('cal-event-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('cal-modal-add').click();
-});
-document.getElementById('cal-modal-close').onclick = () =>
-  document.getElementById('cal-modal').classList.remove('open');
-document.getElementById('cal-modal').onclick = function(e) {
-  if (e.target === this) this.classList.remove('open');
-};
-document.getElementById('cal-prev').onclick = () => {
-  calView.month--; if (calView.month < 0) { calView.month=11; calView.year--; }
-  renderCalendar();
-};
-document.getElementById('cal-next').onclick = () => {
-  calView.month++; if (calView.month > 11) { calView.month=0; calView.year++; }
-  renderCalendar();
-};
+document.getElementById('cal-event-input').addEventListener('keydown',e=>{ if(e.key==='Enter') document.getElementById('cal-modal-add').click(); });
+document.getElementById('cal-modal-close').onclick=()=>document.getElementById('cal-modal').classList.remove('open');
+document.getElementById('cal-modal').onclick=function(e){ if(e.target===this) this.classList.remove('open'); };
+document.getElementById('cal-prev').onclick=()=>{ calView.month--; if(calView.month<0){calView.month=11;calView.year--;} renderCalendar(); };
+document.getElementById('cal-next').onclick=()=>{ calView.month++; if(calView.month>11){calView.month=0;calView.year++;} renderCalendar(); };
 renderCalendar();
 
 /* ══════════════════════════════════════════
-   DAILY TO-DO
+   TO-DO
 ══════════════════════════════════════════ */
-const TODAY = todayStr();
-let todoData = JSON.parse(localStorage.getItem('dashboard_todo') || '{"date":"","tasks":[]}');
-if (todoData.date !== TODAY) { todoData = {date: TODAY, tasks:[]}; }
-function saveTodo() { localStorage.setItem('dashboard_todo', JSON.stringify(todoData)); }
+const TODAY=todayStr();
+let todoData=JSON.parse(localStorage.getItem('dashboard_todo')||'{"date":"","tasks":[]}');
+if(todoData.date!==TODAY) todoData={date:TODAY,tasks:[]};
+function saveTodo(){ localStorage.setItem('dashboard_todo',JSON.stringify(todoData)); }
+document.getElementById('todo-date-label').textContent=`Resets daily · ${TODAY}`;
 
-document.getElementById('todo-date-label').textContent = `Resets daily · ${TODAY}`;
-
-function renderTodo() {
-  const list = document.getElementById('todo-list');
-  list.innerHTML = '';
-  if (!todoData.tasks.length) {
-    list.innerHTML = '<div class="todo-empty">No tasks yet — add one above</div>';
-    return;
-  }
-  todoData.tasks.forEach((task, i) => {
-    const item = document.createElement('div');
-    item.className = 'todo-item' + (task.done ? ' done' : '');
-    const check = document.createElement('div');
-    check.className = 'todo-check' + (task.done ? ' checked' : '');
-    check.onclick = () => {
-      todoData.tasks[i].done = !todoData.tasks[i].done;
-      saveTodo(); renderTodo();
-    };
-    const text = document.createElement('span');
-    text.className = 'todo-text'; text.textContent = task.text;
-    const del = document.createElement('button');
-    del.className = 'todo-del'; del.textContent = '✕';
-    del.onclick = () => { todoData.tasks.splice(i,1); saveTodo(); renderTodo(); };
-    item.append(check, text, del);
-    list.appendChild(item);
+function renderTodo(){
+  const list=document.getElementById('todo-list'); list.innerHTML='';
+  if(!todoData.tasks.length){ list.innerHTML='<div class="todo-empty">No tasks yet — add one above</div>'; return; }
+  todoData.tasks.forEach((task,i)=>{
+    const item=document.createElement('div'); item.className='todo-item'+(task.done?' done':'');
+    const check=document.createElement('div'); check.className='todo-check'+(task.done?' checked':'');
+    check.onclick=()=>{ todoData.tasks[i].done=!todoData.tasks[i].done; saveTodo(); renderTodo(); };
+    const text=document.createElement('span'); text.className='todo-text'; text.textContent=task.text;
+    const del=document.createElement('button'); del.className='todo-del'; del.textContent='✕';
+    del.onclick=()=>{ todoData.tasks.splice(i,1); saveTodo(); renderTodo(); };
+    item.append(check,text,del); list.appendChild(item);
   });
 }
-
-function addTodo() {
-  const val = document.getElementById('todo-input').value.trim();
-  if (!val) return;
-  todoData.tasks.push({text: val, done: false});
-  saveTodo(); renderTodo();
-  document.getElementById('todo-input').value = '';
+function addTodo(){
+  const val=document.getElementById('todo-input').value.trim(); if(!val) return;
+  todoData.tasks.push({text:val,done:false}); saveTodo(); renderTodo();
+  document.getElementById('todo-input').value='';
 }
-
-document.getElementById('btn-add-todo').onclick = addTodo;
-document.getElementById('todo-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addTodo();
-});
-document.getElementById('btn-clear-done').onclick = () => {
-  todoData.tasks = todoData.tasks.filter(t => !t.done);
-  saveTodo(); renderTodo();
-};
+document.getElementById('btn-add-todo').onclick=addTodo;
+document.getElementById('todo-input').addEventListener('keydown',e=>{ if(e.key==='Enter') addTodo(); });
+document.getElementById('btn-clear-done').onclick=()=>{ todoData.tasks=todoData.tasks.filter(t=>!t.done); saveTodo(); renderTodo(); };
 renderTodo();
 
 /* ══════════════════════════════════════════
    WORD OF THE DAY
 ══════════════════════════════════════════ */
-const WORDS = [
+const WORDS=[
   {word:'Ephemeral',phonetic:'/ɪˈfem.ər.əl/',type:'adjective',def:'Lasting for a very short time; transitory.',example:'"The beauty of the cherry blossoms is ephemeral — here one week, gone the next."'},
-  {word:'Sonder',phonetic:'/ˈsɒn.dər/',type:'noun',def:'The realization that each passerby has a life as vivid and complex as one's own.',example:'"He was hit by a sudden sonder watching the crowd at the station."'},
+  {word:'Sonder',phonetic:'/ˈsɒn.dər/',type:'noun',def:'The realization that each passerby has a life as vivid and complex as one\'s own.',example:'"He was hit by a sudden sonder watching the crowd at the station."'},
   {word:'Luminous',phonetic:'/ˈluː.mɪ.nəs/',type:'adjective',def:'Full of or shedding light; bright or shining.',example:'"Her luminous smile lit up the entire room."'},
   {word:'Resilience',phonetic:'/rɪˈzɪl.i.əns/',type:'noun',def:'The capacity to recover quickly from difficulties; toughness.',example:'"The team showed remarkable resilience after the setback."'},
-  {word:'Serendipity',phonetic:'/ˌser.ənˈdɪp.ɪ.ti/',type:'noun',def:'The occurrence and development of events by chance in a happy or beneficial way.',example:'"Finding that rare book in a thrift store was pure serendipity."'},
+  {word:'Serendipity',phonetic:'/ˌser.ənˈdɪp.ɪ.ti/',type:'noun',def:'The occurrence of events by chance in a happy or beneficial way.',example:'"Finding that rare book in a thrift store was pure serendipity."'},
   {word:'Mellifluous',phonetic:'/məˈlɪf.lu.əs/',type:'adjective',def:'Sweet or musical; pleasant to hear.',example:'"The mellifluous voice of the singer filled the hall."'},
-  {word:'Equanimity',phonetic:'/ˌek.wəˈnɪm.ɪ.ti/',type:'noun',def:'Mental calmness, composure, especially in difficult situations.',example:'"She accepted the news with remarkable equanimity."'},
+  {word:'Equanimity',phonetic:'/ˌek.wəˈnɪm.ɪ.ti/',type:'noun',def:'Mental calmness and composure, especially in difficult situations.',example:'"She accepted the news with remarkable equanimity."'},
   {word:'Limerence',phonetic:'/ˈlɪm.ər.əns/',type:'noun',def:'The state of being infatuated or obsessed with another person.',example:'"His limerence had faded into comfortable affection over the years."'},
-  {word:'Soliloquy',phonetic:'/səˈlɪl.ə.kwi/',type:'noun',def:'An act of speaking one's thoughts aloud, typically when alone.',example:'"Hamlet\'s famous soliloquy begins with \'To be or not to be.\'"'},
-  {word:'Ineffable',phonetic:'/ɪnˈef.ə.bəl/',type:'adjective',def:'Too great or extreme to be expressed or described in words.',example:'"There was an ineffable beauty to the mountain at dawn."'},
+  {word:'Ineffable',phonetic:'/ɪnˈef.ə.bəl/',type:'adjective',def:'Too great or extreme to be expressed in words.',example:'"There was an ineffable beauty to the mountain at dawn."'},
   {word:'Perspicacious',phonetic:'/ˌpɜː.spɪˈkeɪ.ʃəs/',type:'adjective',def:'Having a ready insight into things; shrewd.',example:'"A perspicacious investor, she spotted the trend early."'},
-  {word:'Numinous',phonetic:'/ˈnjuː.mɪ.nəs/',type:'adjective',def:'Having a strong religious or spiritual quality; evoking a sense of the divine.',example:'"Standing in the ancient cathedral gave him a numinous feeling."'},
-  {word:'Hiraeth',phonetic:'/ˈhɪər.aɪθ/',type:'noun',def:'A longing for home or a homesickness for a home you cannot return to.',example:'"Leaving his hometown forever filled him with deep hiraeth."'},
+  {word:'Numinous',phonetic:'/ˈnjuː.mɪ.nəs/',type:'adjective',def:'Having a strong spiritual quality; evoking a sense of the divine.',example:'"Standing in the ancient cathedral gave him a numinous feeling."'},
+  {word:'Hiraeth',phonetic:'/ˈhɪər.aɪθ/',type:'noun',def:'A longing for a home you cannot return to.',example:'"Leaving his hometown forever filled him with deep hiraeth."'},
   {word:'Eudaimonia',phonetic:'/juːˌdaɪˈmoʊ.ni.ə/',type:'noun',def:'A state of being happy, healthy, and prosperous; human flourishing.',example:'"Aristotle believed eudaimonia was the highest human good."'},
   {word:'Liminal',phonetic:'/ˈlɪm.ɪ.nəl/',type:'adjective',def:'Occupying a transitional position between two states.',example:'"Dawn is a liminal time — neither night nor day."'},
-  {word:'Pulchritudinous',phonetic:'/ˌpʌl.krɪˈtjuː.dɪ.nəs/',type:'adjective',def:'Physically beautiful; attractive.',example:'"The pulchritudinous landscape drew painters from across the country."'},
-  {word:'Petrichor',phonetic:'/ˈpet.rɪ.kɔːr/',type:'noun',def:'A pleasant smell that frequently accompanies the first rain after a long dry spell.',example:'"The petrichor after the summer storm was intoxicating."'},
-  {word:'Susurrus',phonetic:'/suːˈsʌr.əs/',type:'noun',def:'Whispering, murmuring, or rustling.',example:'"A susurrus of leaves accompanied their walk through the forest."'},
-  {word:'Kairos',phonetic:'/ˈkaɪ.rɒs/',type:'noun',def:'A propitious moment for decision or action; the right, critical moment.',example:'"She sensed this was her kairos — the moment to speak up."'},
+  {word:'Petrichor',phonetic:'/ˈpet.rɪ.kɔːr/',type:'noun',def:'The pleasant smell that accompanies the first rain after a long dry spell.',example:'"The petrichor after the summer storm was intoxicating."'},
+  {word:'Susurrus',phonetic:'/suːˈsʌr.əs/',type:'noun',def:'A whispering, murmuring, or rustling sound.',example:'"A susurrus of leaves accompanied their walk through the forest."'},
+  {word:'Kairos',phonetic:'/ˈkaɪ.rɒs/',type:'noun',def:'A propitious moment for decision or action.',example:'"She sensed this was her kairos — the moment to speak up."'},
   {word:'Sempiternal',phonetic:'/ˌsem.pɪˈtɜː.nəl/',type:'adjective',def:'Eternal and unchanging; everlasting.',example:'"The sempiternal stars have guided sailors for millennia."'},
   {word:'Lacuna',phonetic:'/ləˈkjuː.nə/',type:'noun',def:'An unfilled space or interval; a gap.',example:'"There was a lacuna in the historical record spanning two decades."'},
+  {word:'Alacrity',phonetic:'/əˈlæk.rɪ.ti/',type:'noun',def:'Brisk and cheerful readiness.',example:'"She accepted the challenge with alacrity."'},
+  {word:'Simulacrum',phonetic:'/ˌsɪm.jʊˈleɪ.krəm/',type:'noun',def:'An image or representation of something; an unsatisfactory imitation.',example:'"The theme park was a simulacrum of ancient Rome."'},
+  {word:'Crepuscular',phonetic:'/krɪˈpʌs.kjʊ.lər/',type:'adjective',def:'Of or relating to twilight.',example:'"Fireflies are crepuscular creatures, emerging at dusk."'},
+  {word:'Fugacious',phonetic:'/fjuːˈɡeɪ.ʃəs/',type:'adjective',def:'Tending to disappear; fleeting.',example:'"Youth is the most fugacious of gifts."'},
   {word:'Vellichor',phonetic:'/ˈvel.ɪ.kɔːr/',type:'noun',def:'The strange wistfulness of used bookshops.',example:'"He could spend hours in vellichor, lost among the dusty shelves."'},
-  {word:'Adumbrate',phonetic:'/ˈæd.ʌm.breɪt/',type:'verb',def:'To indicate or describe roughly; to overshadow.',example:'"The early paintings adumbrate the style he would perfect later."'},
+  {word:'Adumbrate',phonetic:'/ˈæd.ʌm.breɪt/',type:'verb',def:'To indicate or describe roughly; to foreshadow.',example:'"The early paintings adumbrate the style he would perfect later."'},
+  {word:'Tenebrous',phonetic:'/ˈten.ɪ.brəs/',type:'adjective',def:'Dark; shadowy or obscure.',example:'"The tenebrous forest path made navigation treacherous."'},
   {word:'Fulgent',phonetic:'/ˈfʌl.dʒənt/',type:'adjective',def:'Shining brightly; radiant.',example:'"The fulgent sun broke through after the storm."'},
   {word:'Sibilant',phonetic:'/ˈsɪb.ɪ.lənt/',type:'adjective',def:'Making or characterized by a hissing sound.',example:'"The sibilant whisper of the wind through the reeds."'},
-  {word:'Tenebrous',phonetic:'/ˈten.ɪ.brəs/',type:'adjective',def:'Dark; shadowy or obscure.',example:'"The tenebrous forest path made navigation treacherous."'},
-  {word:'Alacrity',phonetic:'/əˈlæk.rɪ.ti/',type:'noun',def:'Brisk and cheerful readiness.',example:'"She accepted the challenge with alacrity."'},
-  {word:'Simulacrum',phonetic:'/ˌsɪm.jʊˈleɪ.krəm/',type:'noun',def:'An image or representation of someone or something; an unsatisfactory imitation.',example:'"The theme park was a simulacrum of ancient Rome."'},
-  {word:'Crepuscular',phonetic:'/krɪˈpʌs.kjʊ.lər/',type:'adjective',def:'Of, resembling, or relating to twilight.',example:'"Fireflies are crepuscular creatures, emerging at dusk."'},
-  {word:'Fugacious',phonetic:'/fjuːˈɡeɪ.ʃəs/',type:'adjective',def:'Tending to disappear; fleeting.',example:'"Youth is the most fugacious of gifts."'},
+  {word:'Soliloquy',phonetic:'/səˈlɪl.ə.kwi/',type:'noun',def:'An act of speaking one\'s thoughts aloud when alone.',example:'"Hamlet\'s famous soliloquy begins with \'To be or not to be.\'"'},
+  {word:'Pulchritudinous',phonetic:'/ˌpʌl.krɪˈtjuː.dɪ.nəs/',type:'adjective',def:'Physically beautiful; attractive.',example:'"The pulchritudinous landscape drew painters from across the country."'},
 ];
-
-const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 86400000);
-const wotd = WORDS[dayOfYear % WORDS.length];
-document.getElementById('wotd-word').textContent = wotd.word;
-document.getElementById('wotd-phonetic').textContent = wotd.phonetic;
-document.getElementById('wotd-type').textContent = wotd.type;
-document.getElementById('wotd-def').textContent = wotd.def;
-document.getElementById('wotd-example').textContent = wotd.example;
-
-/* ══════════════════════════════════════════
-   SCROLL REVEAL
-══════════════════════════════════════════ */
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+const wotd=WORDS[dayOfYear%WORDS.length];
+document.getElementById('wotd-word').textContent=wotd.word;
+document.getElementById('wotd-phonetic').textContent=wotd.phonetic;
+document.getElementById('wotd-type').textContent=wotd.type;
+document.getElementById('wotd-def').textContent=wotd.def;
+document.getElementById('wotd-example').textContent=wotd.example;
 </script>
 </body>
 </html>
