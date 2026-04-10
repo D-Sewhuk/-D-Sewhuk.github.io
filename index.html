@@ -474,21 +474,41 @@ updateAmbient();
 setInterval(updateAmbient, 60000);
 
 /* ══════════════════════════════════════════
-   CLOCK & GREETING
+   CLOCK & GREETING  (Eastern Time)
 ══════════════════════════════════════════ */
+const TZ = 'America/New_York';
 function updateClock() {
   const now = new Date();
-  const h = now.getHours();
-  const pad = n => String(n).padStart(2,'0');
-  document.getElementById('clock').textContent =
-    `${pad(h)}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-  const days  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-  const months= ['January','February','March','April','May','June','July','August','September','October','November','December'];
-  document.getElementById('datestr').textContent =
-    `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+
+  // Time — HH:MM:SS in Eastern
+  const timeStr = now.toLocaleTimeString('en-US', {
+    timeZone: TZ,
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  document.getElementById('clock').textContent = timeStr;
+
+  // Date — full weekday + month + day
+  const dateDisplay = now.toLocaleDateString('en-US', {
+    timeZone: TZ,
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
+  document.getElementById('datestr').textContent = dateDisplay;
+
+  // Greeting based on Eastern hour
+  const estHour = parseInt(now.toLocaleString('en-US', {
+    timeZone: TZ,
+    hour: 'numeric',
+    hour12: false
+  }), 10);
   let greet = 'Good evening';
-  if (h >= 5 && h < 12) greet = 'Good morning';
-  else if (h >= 12 && h < 17) greet = 'Good afternoon';
+  if (estHour >= 5 && estHour < 12)  greet = 'Good morning';
+  else if (estHour >= 12 && estHour < 17) greet = 'Good afternoon';
   document.getElementById('greeting').textContent = greet;
 }
 updateClock();
