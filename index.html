@@ -1,37 +1,976 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>D-Sewhuk</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 100vh;
-    }
-    h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    p  { color: #8b949e; font-size: 1.1rem; margin-bottom: 1.5rem; }
-    a {
-      color: #58a6ff;
-      text-decoration: none;
-      border: 1px solid #30363d;
-      padding: 0.5rem 1.2rem;
-      border-radius: 6px;
-      transition: background 0.2s;
-    }
-    a:hover { background: #161b22; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#080c14;
+  --surface:rgba(255,255,255,0.04);
+  --surface2:rgba(255,255,255,0.07);
+  --border:rgba(255,255,255,0.08);
+  --text:#e6edf3;
+  --text2:#8b949e;
+  --text3:#3d444d;
+  --accent:#58a6ff;
+  --green:#3fb950;
+  --red:#f78166;
+  --font:'Space Grotesk',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  transition:background 4s ease;
+}
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  transition:background 4s ease,opacity 4s ease;
+  background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(30,50,120,0.35) 0%,transparent 70%);
+}
+section,nav,header{position:relative;z-index:1}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 32px;
+  background:rgba(8,12,20,0.7);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--border);
+}
+.nav-logo{font-weight:600;font-size:.95rem;color:var(--accent);letter-spacing:.5px}
+.nav-links{display:flex;gap:24px}
+.nav-links a{
+  color:var(--text2);font-size:.85rem;text-decoration:none;
+  transition:color .2s;letter-spacing:.3px;
+}
+.nav-links a:hover{color:var(--text)}
+
+/* ── HERO ── */
+#home{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  text-align:center;padding:80px 24px 40px;
+}
+#greeting{font-size:1rem;font-weight:400;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+#clock{
+  font-size:clamp(4rem,12vw,9rem);
+  font-weight:300;letter-spacing:-2px;
+  line-height:1;margin-bottom:10px;
+  background:linear-gradient(135deg,#e6edf3 60%,#8b949e);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+#datestr{font-size:1rem;color:var(--text2);font-weight:400;margin-bottom:32px;letter-spacing:.5px}
+#weather-widget{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--surface);border:1px solid var(--border);
+  padding:8px 18px;border-radius:40px;margin-bottom:36px;
+  font-size:.9rem;color:var(--text2);
+}
+#weather-icon{font-size:1.2rem}
+.hero-links{display:flex;gap:20px;flex-wrap:wrap;justify-content:center}
+.hero-link{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);
+  padding:10px 20px;border-radius:10px;text-decoration:none;
+  color:var(--text2);font-size:.875rem;transition:all .2s;
+}
+.hero-link:hover{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
+.hero-link svg{width:16px;height:16px;opacity:.7}
+
+/* ── SECTIONS ── */
+.section{padding:80px 0;max-width:960px;margin:0 auto;padding-left:24px;padding-right:24px}
+.section-title{
+  font-size:1.4rem;font-weight:600;margin-bottom:28px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-title::after{
+  content:'';flex:1;height:1px;background:var(--border);
+}
+.section-divider{border:none;border-top:1px solid var(--border);margin:80px 0}
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:24px;
+}
+
+/* ── NOTES ── */
+.notes-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.note-tab{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:6px 14px;font-size:.8rem;font-family:var(--font);
+  color:var(--text2);cursor:pointer;transition:all .15s;position:relative;
+}
+.note-tab.active{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.15)}
+.note-tab .del-tab{
+  display:none;position:absolute;right:-6px;top:-6px;
+  background:#333;border-radius:50%;width:16px;height:16px;
+  font-size:10px;align-items:center;justify-content:center;cursor:pointer;border:none;color:#ccc;
+}
+.note-tab:hover .del-tab{display:flex}
+.btn-add-note{
+  background:transparent;border:1px dashed var(--border);
+  border-radius:8px;padding:6px 14px;font-size:.8rem;font-family:var(--font);
+  color:var(--text3);cursor:pointer;transition:all .15s;
+}
+.btn-add-note:hover{border-color:var(--text2);color:var(--text2)}
+.note-editor{width:100%;min-height:220px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;color:var(--text);font-family:var(--font);font-size:.9rem;resize:vertical;line-height:1.6;outline:none;transition:border-color .2s}
+.note-editor:focus{border-color:rgba(88,166,255,0.3)}
+.note-actions{display:flex;justify-content:space-between;align-items:center;margin-top:10px}
+.note-saved{font-size:.8rem;color:var(--green);opacity:0;transition:opacity .3s}
+.btn{
+  background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:8px 18px;font-family:var(--font);font-size:.85rem;
+  color:var(--text);cursor:pointer;transition:all .15s;
+}
+.btn:hover{background:rgba(255,255,255,0.1);border-color:rgba(255,255,255,0.15)}
+.btn-accent{background:rgba(88,166,255,0.15);border-color:rgba(88,166,255,0.3);color:var(--accent)}
+.btn-accent:hover{background:rgba(88,166,255,0.25)}
+.btn-danger{background:rgba(247,129,102,0.12);border-color:rgba(247,129,102,0.25);color:var(--red)}
+.btn-danger:hover{background:rgba(247,129,102,0.22)}
+
+/* ── GYM TRACKER ── */
+.gym-meta{display:flex;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+.gym-stat{text-align:center}
+.gym-stat-val{font-size:2rem;font-weight:600;line-height:1}
+.gym-stat-label{font-size:.75rem;color:var(--text2);margin-top:4px;text-transform:uppercase;letter-spacing:.5px}
+.heatmap-wrap{overflow-x:auto;padding-bottom:8px}
+.heatmap{display:flex;gap:3px;align-items:flex-start}
+.heatmap-col{display:flex;flex-direction:column;gap:3px}
+.heatmap-cell{
+  width:13px;height:13px;border-radius:2px;
+  background:rgba(255,255,255,0.06);cursor:pointer;
+  transition:transform .1s,background .15s;border:1px solid rgba(255,255,255,0.03);
+}
+.heatmap-cell:hover{transform:scale(1.3);border-color:rgba(255,255,255,0.2)}
+.heatmap-cell.gym-day{background:#216e39}
+.heatmap-cell.gym-day-2{background:#2ea043}
+.heatmap-cell.gym-day.today{border-color:var(--accent);border-width:1px}
+.heatmap-months{display:flex;gap:3px;margin-bottom:6px}
+.heatmap-month-label{font-size:.65rem;color:var(--text3);min-width:13px}
+.heatmap-days{display:flex;flex-direction:column;gap:3px;margin-right:6px;padding-top:0}
+.heatmap-day-label{font-size:.65rem;color:var(--text3);height:13px;display:flex;align-items:center}
+.pr-table{width:100%;border-collapse:collapse;margin-top:8px}
+.pr-table th{text-align:left;font-size:.75rem;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;border-bottom:1px solid var(--border)}
+.pr-table td{padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.04);font-size:.875rem}
+.pr-table tr:last-child td{border-bottom:none}
+.pr-table input{background:transparent;border:none;color:var(--text);font-family:var(--font);font-size:.875rem;outline:none;width:100%}
+.pr-table input:focus{background:rgba(255,255,255,0.05);border-radius:4px;padding:2px 4px}
+.pr-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 4px;transition:color .15s}
+.pr-del:hover{color:var(--red)}
+.gym-section-title{font-size:.9rem;font-weight:600;margin:28px 0 14px;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+
+/* ── CALENDAR ── */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.cal-month-label{font-size:1.1rem;font-weight:600}
+.cal-btn{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-family:var(--font);font-size:.85rem;color:var(--text2);cursor:pointer;transition:all .15s}
+.cal-btn:hover{color:var(--text);background:rgba(255,255,255,0.08)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal-header{text-align:center;font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:8px 0}
+.cal-day{
+  min-height:70px;background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:8px;cursor:pointer;transition:all .15s;position:relative;
+}
+.cal-day:hover{background:var(--surface2);border-color:rgba(255,255,255,0.12)}
+.cal-day.other-month{opacity:.3}
+.cal-day.today .cal-day-num{
+  background:var(--accent);color:#fff;border-radius:50%;
+  width:22px;height:22px;display:flex;align-items:center;justify-content:center;
+}
+.cal-day-num{font-size:.8rem;font-weight:500;margin-bottom:4px;width:22px;height:22px;display:flex;align-items:center;justify-content:center}
+.cal-event-dot{
+  font-size:.65rem;color:var(--text2);
+  background:rgba(88,166,255,0.15);border-radius:4px;
+  padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:100%;display:block;
+}
+.cal-modal{
+  display:none;position:fixed;inset:0;z-index:200;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+}
+.cal-modal.open{display:flex}
+.cal-modal-box{
+  background:#0d1117;border:1px solid var(--border);border-radius:14px;
+  padding:28px;width:90%;max-width:440px;
+}
+.cal-modal-title{font-size:1rem;font-weight:600;margin-bottom:16px}
+.cal-modal input,.cal-modal textarea{
+  width:100%;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 14px;color:var(--text);font-family:var(--font);
+  font-size:.875rem;outline:none;transition:border-color .2s;margin-bottom:10px;resize:vertical;
+}
+.cal-modal input:focus,.cal-modal textarea:focus{border-color:rgba(88,166,255,0.3)}
+.cal-modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.cal-events-list{margin-top:12px}
+.cal-event-item{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:8px;
+  padding:8px 0;border-bottom:1px solid var(--border);font-size:.875rem;
+}
+.cal-event-item:last-child{border-bottom:none}
+
+/* ── TODO ── */
+.todo-input-row{display:flex;gap:8px;margin-bottom:20px}
+.todo-input{
+  flex:1;background:var(--surface2);border:1px solid var(--border);
+  border-radius:8px;padding:10px 16px;color:var(--text);font-family:var(--font);
+  font-size:.9rem;outline:none;transition:border-color .2s;
+}
+.todo-input:focus{border-color:rgba(88,166,255,0.3)}
+.todo-list{display:flex;flex-direction:column;gap:6px}
+.todo-item{
+  display:flex;align-items:center;gap:12px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:8px;padding:12px 16px;transition:opacity .2s;
+}
+.todo-item.done{opacity:.4}
+.todo-item.done .todo-text{text-decoration:line-through;color:var(--text2)}
+.todo-check{
+  width:18px;height:18px;border-radius:50%;border:2px solid var(--border);
+  cursor:pointer;flex-shrink:0;transition:all .15s;display:flex;align-items:center;justify-content:center;
+}
+.todo-check.checked{background:var(--green);border-color:var(--green)}
+.todo-check.checked::after{content:'✓';color:#fff;font-size:11px}
+.todo-text{flex:1;font-size:.9rem}
+.todo-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 4px;transition:color .15s;flex-shrink:0}
+.todo-del:hover{color:var(--red)}
+.todo-empty{color:var(--text3);font-size:.875rem;text-align:center;padding:24px}
+
+/* ── WORD OF DAY ── */
+.word-card{text-align:center;padding:40px}
+.word-of-day{font-size:2.5rem;font-weight:600;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.word-phonetic{font-size:.9rem;color:var(--text3);margin-bottom:16px}
+.word-type{font-size:.75rem;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;font-weight:500}
+.word-def{font-size:1rem;color:var(--text2);line-height:1.7;max-width:560px;margin:0 auto 16px}
+.word-example{font-size:.875rem;color:var(--text3);font-style:italic;max-width:480px;margin:0 auto}
+
+/* ── FOOTER ── */
+footer{text-align:center;padding:40px 24px;color:var(--text3);font-size:.8rem;border-top:1px solid var(--border);margin-top:40px;position:relative;z-index:1}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  nav{padding:12px 16px}
+  .nav-links{gap:14px}
+  .nav-links a{font-size:.78rem}
+  .section{padding:60px 16px}
+  .gym-meta{gap:16px}
+  .gym-stat-val{font-size:1.5rem}
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.2)}
+
+/* smooth reveal */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .5s ease,transform .5s ease}
+.reveal.visible{opacity:1;transform:none}
+</style>
 </head>
 <body>
-  <h1>D-Sewhuk</h1>
-  <p>Personal website — coming soon.</p>
-  <a href="https://github.com/D-Sewhuk" target="_blank">GitHub</a>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">D-Sewhuk</div>
+  <div class="nav-links">
+    <a href="#home">Home</a>
+    <a href="#notes">Notes</a>
+    <a href="#gym">Gym</a>
+    <a href="#calendar">Calendar</a>
+    <a href="#todo">To-Do</a>
+    <a href="#word">Word</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header id="home">
+  <div id="greeting">Good evening</div>
+  <div id="clock">00:00:00</div>
+  <div id="datestr">Monday, January 1</div>
+  <div id="weather-widget">
+    <span id="weather-icon">⏳</span>
+    <span id="weather-text">Fetching weather…</span>
+  </div>
+  <div class="hero-links">
+    <a class="hero-link" href="https://mail.google.com" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="2,4 12,13 22,4"/></svg>
+      Gmail
+    </a>
+    <a class="hero-link" href="#notes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14,2 14,8 20,8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Notes
+    </a>
+    <a class="hero-link" href="#gym">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.5 6.5h11M6.5 17.5h11M3 12h18M6 9v6M18 9v6"/></svg>
+      Gym Tracker
+    </a>
+    <a class="hero-link" href="#todo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="9,11 12,14 22,4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      To-Do
+    </a>
+  </div>
+</header>
+
+<!-- NOTES -->
+<section class="section reveal" id="notes">
+  <div class="section-title">Notes</div>
+  <div class="card">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <div class="notes-tabs" id="notes-tabs"></div>
+      <button class="btn-add-note" id="btn-add-note">+ New</button>
+    </div>
+    <textarea class="note-editor" id="note-editor" placeholder="Start typing…"></textarea>
+    <div class="note-actions">
+      <span class="note-saved" id="note-saved">Saved ✓</span>
+      <button class="btn btn-accent" id="btn-save-note">Save</button>
+    </div>
+  </div>
+</section>
+<hr class="section-divider">
+
+<!-- GYM TRACKER -->
+<section class="section reveal" id="gym">
+  <div class="section-title">Gym Tracker</div>
+  <div class="card">
+    <div class="gym-meta">
+      <div class="gym-stat">
+        <div class="gym-stat-val" id="streak-current" style="color:var(--green)">0</div>
+        <div class="gym-stat-label">Current Streak</div>
+      </div>
+      <div class="gym-stat">
+        <div class="gym-stat-val" id="streak-longest">0</div>
+        <div class="gym-stat-label">Longest Streak</div>
+      </div>
+      <div class="gym-stat">
+        <div class="gym-stat-val" id="gym-total">0</div>
+        <div class="gym-stat-label">Total Days</div>
+      </div>
+    </div>
+    <div class="gym-section-title">Activity — Past Year</div>
+    <div class="heatmap-wrap">
+      <div id="heatmap-container"></div>
+    </div>
+    <p style="font-size:.75rem;color:var(--text3);margin-top:10px">Click any day to toggle gym session</p>
+
+    <div class="gym-section-title">Personal Records</div>
+    <table class="pr-table" id="pr-table">
+      <thead><tr><th>Exercise</th><th>Weight / Reps</th><th>Notes</th><th></th></tr></thead>
+      <tbody id="pr-body"></tbody>
+    </table>
+    <button class="btn" style="margin-top:14px" id="btn-add-pr">+ Add Lift</button>
+  </div>
+</section>
+<hr class="section-divider">
+
+<!-- CALENDAR -->
+<section class="section reveal" id="calendar">
+  <div class="section-title">Calendar</div>
+  <div class="card">
+    <div class="cal-nav">
+      <button class="cal-btn" id="cal-prev">← Prev</button>
+      <div class="cal-month-label" id="cal-month-label"></div>
+      <button class="cal-btn" id="cal-next">Next →</button>
+    </div>
+    <div class="cal-grid" id="cal-grid"></div>
+  </div>
+</section>
+
+<!-- CALENDAR MODAL -->
+<div class="cal-modal" id="cal-modal">
+  <div class="cal-modal-box">
+    <div class="cal-modal-title" id="cal-modal-title">Events for Jan 1</div>
+    <div class="cal-events-list" id="cal-events-list"></div>
+    <input type="text" id="cal-event-input" placeholder="Add an event…" />
+    <div class="cal-modal-actions">
+      <button class="btn" id="cal-modal-close">Close</button>
+      <button class="btn btn-accent" id="cal-modal-add">Add Event</button>
+    </div>
+  </div>
+</div>
+<hr class="section-divider">
+
+<!-- TODO -->
+<section class="section reveal" id="todo">
+  <div class="section-title">Daily To-Do</div>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <span style="font-size:.8rem;color:var(--text3)" id="todo-date-label"></span>
+      <button class="btn btn-danger" id="btn-clear-done" style="font-size:.78rem;padding:5px 12px">Clear done</button>
+    </div>
+    <div class="todo-input-row">
+      <input type="text" class="todo-input" id="todo-input" placeholder="Add a task… press Enter" />
+      <button class="btn btn-accent" id="btn-add-todo">Add</button>
+    </div>
+    <div class="todo-list" id="todo-list"></div>
+  </div>
+</section>
+<hr class="section-divider">
+
+<!-- WORD OF DAY -->
+<section class="section reveal" id="word">
+  <div class="section-title">Word of the Day</div>
+  <div class="card word-card">
+    <div class="word-of-day" id="wotd-word"></div>
+    <div class="word-phonetic" id="wotd-phonetic"></div>
+    <div class="word-type" id="wotd-type"></div>
+    <div class="word-def" id="wotd-def"></div>
+    <div class="word-example" id="wotd-example"></div>
+  </div>
+</section>
+
+<footer>Built with ♥ · <a href="https://github.com/D-Sewhuk" style="color:var(--text2);text-decoration:none">D-Sewhuk</a></footer>
+
+<script>
+/* ══════════════════════════════════════════
+   AMBIENT BACKGROUND
+══════════════════════════════════════════ */
+function updateAmbient() {
+  const h = new Date().getHours();
+  let bg, glow;
+  if (h >= 22 || h < 5) {        // Night
+    bg = '#080c14';
+    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(15,25,60,0.4) 0%, transparent 70%)';
+  } else if (h >= 5 && h < 8) {  // Dawn
+    bg = '#0c0a10';
+    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(80,40,20,0.4) 0%, transparent 70%)';
+  } else if (h >= 8 && h < 17) { // Day
+    bg = '#090d16';
+    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(20,50,100,0.45) 0%, transparent 70%)';
+  } else if (h >= 17 && h < 20) {// Dusk
+    bg = '#0b0910';
+    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(60,20,60,0.4) 0%, transparent 70%)';
+  } else {                        // Evening
+    bg = '#090c14';
+    glow = 'radial-gradient(ellipse 80% 50% at 50% -5%, rgba(20,20,70,0.4) 0%, transparent 70%)';
+  }
+  document.body.style.background = bg;
+  document.body.style.setProperty('--bg', bg);
+  document.body.querySelector('body') || document.documentElement;
+  document.styleSheets[0] && null;
+  document.body.style.cssText += '';
+  const pseudo = document.getElementById('pseudo-bg');
+  if (!pseudo) {
+    const s = document.createElement('style');
+    s.id = 'pseudo-bg';
+    s.textContent = `body::before{background:${glow}!important}`;
+    document.head.appendChild(s);
+  } else {
+    pseudo.textContent = `body::before{background:${glow}!important}`;
+  }
+}
+updateAmbient();
+setInterval(updateAmbient, 60000);
+
+/* ══════════════════════════════════════════
+   CLOCK & GREETING
+══════════════════════════════════════════ */
+function updateClock() {
+  const now = new Date();
+  const h = now.getHours();
+  const pad = n => String(n).padStart(2,'0');
+  document.getElementById('clock').textContent =
+    `${pad(h)}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+  const days  = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const months= ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('datestr').textContent =
+    `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+  let greet = 'Good evening';
+  if (h >= 5 && h < 12) greet = 'Good morning';
+  else if (h >= 12 && h < 17) greet = 'Good afternoon';
+  document.getElementById('greeting').textContent = greet;
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+/* ══════════════════════════════════════════
+   WEATHER
+══════════════════════════════════════════ */
+const WMO = {
+  0:{d:'Clear sky',i:'☀️'},1:{d:'Mainly clear',i:'🌤️'},2:{d:'Partly cloudy',i:'⛅'},
+  3:{d:'Overcast',i:'☁️'},45:{d:'Fog',i:'🌫️'},48:{d:'Icy fog',i:'🌫️'},
+  51:{d:'Light drizzle',i:'🌦️'},53:{d:'Drizzle',i:'🌦️'},55:{d:'Heavy drizzle',i:'🌧️'},
+  61:{d:'Slight rain',i:'🌧️'},63:{d:'Moderate rain',i:'🌧️'},65:{d:'Heavy rain',i:'🌧️'},
+  71:{d:'Light snow',i:'🌨️'},73:{d:'Moderate snow',i:'❄️'},75:{d:'Heavy snow',i:'❄️'},
+  77:{d:'Snow grains',i:'❄️'},80:{d:'Rain showers',i:'🌦️'},81:{d:'Showers',i:'🌧️'},
+  82:{d:'Heavy showers',i:'⛈️'},85:{d:'Snow showers',i:'🌨️'},86:{d:'Heavy snow showers',i:'🌨️'},
+  95:{d:'Thunderstorm',i:'⛈️'},96:{d:'Thunderstorm',i:'⛈️'},99:{d:'Heavy thunderstorm',i:'⛈️'}
+};
+function fetchWeather(lat, lon) {
+  fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`)
+    .then(r => r.json())
+    .then(d => {
+      const cw = d.current_weather;
+      const info = WMO[cw.weathercode] || {d:'Unknown',i:'🌡️'};
+      document.getElementById('weather-icon').textContent = info.i;
+      document.getElementById('weather-text').textContent =
+        `${Math.round(cw.temperature)}°F · ${info.d}`;
+    })
+    .catch(() => {
+      document.getElementById('weather-text').textContent = 'Weather unavailable';
+    });
+}
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    p => fetchWeather(p.coords.latitude, p.coords.longitude),
+    () => { document.getElementById('weather-text').textContent = 'Location denied'; }
+  );
+} else {
+  document.getElementById('weather-text').textContent = 'Geolocation unsupported';
+}
+
+/* ══════════════════════════════════════════
+   NOTES
+══════════════════════════════════════════ */
+let notes = JSON.parse(localStorage.getItem('dashboard_notes') || 'null') ||
+  [{id:1, title:'Quick Notes', content:''}];
+let activeNote = notes[0].id;
+
+function saveNotes() { localStorage.setItem('dashboard_notes', JSON.stringify(notes)); }
+function getNoteById(id) { return notes.find(n => n.id === id); }
+
+function renderNotes() {
+  const tabs = document.getElementById('notes-tabs');
+  tabs.innerHTML = '';
+  notes.forEach(n => {
+    const tab = document.createElement('button');
+    tab.className = 'note-tab' + (n.id === activeNote ? ' active' : '');
+    tab.textContent = n.title;
+    tab.onclick = () => { activeNote = n.id; renderNotes(); };
+    const del = document.createElement('button');
+    del.className = 'del-tab';
+    del.textContent = '×';
+    del.onclick = (e) => {
+      e.stopPropagation();
+      if (notes.length === 1) return;
+      notes = notes.filter(x => x.id !== n.id);
+      activeNote = notes[0].id;
+      saveNotes(); renderNotes();
+    };
+    tab.appendChild(del);
+    tabs.appendChild(tab);
+  });
+  const note = getNoteById(activeNote);
+  document.getElementById('note-editor').value = note ? note.content : '';
+}
+
+document.getElementById('btn-add-note').onclick = () => {
+  const title = prompt('Note name:', 'Untitled');
+  if (!title) return;
+  const id = Date.now();
+  notes.push({id, title, content:''});
+  activeNote = id;
+  saveNotes(); renderNotes();
+};
+
+let saveTimeout;
+document.getElementById('note-editor').addEventListener('input', () => {
+  const note = getNoteById(activeNote);
+  if (note) note.content = document.getElementById('note-editor').value;
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(() => { saveNotes(); showSaved(); }, 800);
+});
+
+document.getElementById('btn-save-note').onclick = () => {
+  const note = getNoteById(activeNote);
+  if (note) note.content = document.getElementById('note-editor').value;
+  saveNotes(); showSaved();
+};
+
+function showSaved() {
+  const s = document.getElementById('note-saved');
+  s.style.opacity = '1';
+  setTimeout(() => s.style.opacity = '0', 1500);
+}
+
+renderNotes();
+
+/* ══════════════════════════════════════════
+   GYM TRACKER — HEATMAP
+══════════════════════════════════════════ */
+let gymDays = JSON.parse(localStorage.getItem('dashboard_gym') || '[]');
+function saveGym() { localStorage.setItem('dashboard_gym', JSON.stringify(gymDays)); }
+function dateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayStr() { return dateStr(new Date()); }
+
+function buildHeatmap() {
+  const container = document.getElementById('heatmap-container');
+  container.innerHTML = '';
+  const today = new Date();
+  const startDate = new Date(today);
+  startDate.setDate(startDate.getDate() - 364);
+  // align to Sunday
+  startDate.setDate(startDate.getDate() - startDate.getDay());
+
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'display:flex;gap:0;align-items:flex-start';
+
+  // Day labels
+  const dayLabels = document.createElement('div');
+  dayLabels.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-right:6px;padding-top:20px';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach((d,i) => {
+    const lbl = document.createElement('div');
+    lbl.className = 'heatmap-day-label';
+    lbl.style.height = '13px';
+    lbl.textContent = i % 2 === 1 ? d : '';
+    dayLabels.appendChild(lbl);
+  });
+  wrapper.appendChild(dayLabels);
+
+  const cols = document.createElement('div');
+  cols.style.cssText = 'display:flex;flex-direction:column;gap:0';
+
+  // Month labels row
+  const monthRow = document.createElement('div');
+  monthRow.style.cssText = 'display:flex;gap:3px;margin-bottom:3px;height:16px';
+
+  const gridRow = document.createElement('div');
+  gridRow.style.cssText = 'display:flex;gap:3px';
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let lastMonth = -1;
+  let cursor = new Date(startDate);
+  let col = 0;
+
+  while (cursor <= today || cursor.getDay() !== 0) {
+    const colDiv = document.createElement('div');
+    colDiv.style.cssText = 'display:flex;flex-direction:column;gap:3px';
+
+    // Month label for this column
+    const firstDayOfCol = new Date(cursor);
+    const mLabel = document.createElement('div');
+    mLabel.style.cssText = 'font-size:.62rem;color:rgba(255,255,255,0.25);height:16px;display:flex;align-items:center;width:13px';
+    if (firstDayOfCol.getMonth() !== lastMonth) {
+      mLabel.textContent = monthNames[firstDayOfCol.getMonth()];
+      lastMonth = firstDayOfCol.getMonth();
+    }
+    cols.appendChild(mLabel); // will reorder below
+
+    for (let day = 0; day < 7; day++) {
+      const cellDate = new Date(cursor);
+      cellDate.setDate(cursor.getDate() + day);
+      const ds = dateStr(cellDate);
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell' + (gymDays.includes(ds) ? ' gym-day' : '') + (ds === todayStr() ? ' today' : '');
+      cell.title = ds;
+      if (cellDate > today) cell.style.opacity = '0.15';
+      else {
+        cell.onclick = () => {
+          if (gymDays.includes(ds)) gymDays = gymDays.filter(x => x !== ds);
+          else gymDays.push(ds);
+          saveGym();
+          buildHeatmap();
+          updateStreaks();
+        };
+      }
+      colDiv.appendChild(cell);
+    }
+
+    // We need to reorganize: build as columns
+    cursor.setDate(cursor.getDate() + 7);
+    col++;
+
+    // Combine month label and colDiv
+    const colWrap = document.createElement('div');
+    colWrap.style.cssText = 'display:flex;flex-direction:column;gap:3px';
+    colWrap.appendChild(mLabel);
+    colWrap.appendChild(colDiv);
+    gridRow.appendChild(colWrap);
+  }
+
+  wrapper.appendChild(gridRow);
+  container.appendChild(wrapper);
+}
+
+function updateStreaks() {
+  const sorted = [...gymDays].sort();
+  let current = 0, longest = 0, streak = 0;
+  const today = new Date();
+  let check = new Date(today);
+
+  // current streak (backwards from today)
+  while (true) {
+    if (gymDays.includes(dateStr(check))) { current++; check.setDate(check.getDate()-1); }
+    else if (dateStr(check) === todayStr()) { check.setDate(check.getDate()-1); }
+    else break;
+  }
+
+  // longest streak
+  let prev = null, run = 0;
+  sorted.forEach(ds => {
+    if (!prev) { run = 1; }
+    else {
+      const d = new Date(ds), p = new Date(prev);
+      const diff = (d - p) / 86400000;
+      run = diff === 1 ? run + 1 : 1;
+    }
+    longest = Math.max(longest, run);
+    prev = ds;
+  });
+
+  document.getElementById('streak-current').textContent = current;
+  document.getElementById('streak-longest').textContent = longest;
+  document.getElementById('gym-total').textContent = gymDays.length;
+}
+
+buildHeatmap();
+updateStreaks();
+
+/* ── PR TABLE ── */
+let prs = JSON.parse(localStorage.getItem('dashboard_prs') || '[]');
+function savePRs() { localStorage.setItem('dashboard_prs', JSON.stringify(prs)); }
+
+function renderPRs() {
+  const tbody = document.getElementById('pr-body');
+  tbody.innerHTML = '';
+  prs.forEach((pr, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input value="${pr.exercise||''}" placeholder="e.g. Bench Press" onchange="prs[${i}].exercise=this.value;savePRs()"/></td>
+      <td><input value="${pr.weight||''}" placeholder="e.g. 225 lbs × 5" onchange="prs[${i}].weight=this.value;savePRs()" style="width:130px"/></td>
+      <td><input value="${pr.notes||''}" placeholder="Notes" onchange="prs[${i}].notes=this.value;savePRs()"/></td>
+      <td><button class="pr-del" onclick="prs.splice(${i},1);savePRs();renderPRs()">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('btn-add-pr').onclick = () => {
+  prs.push({exercise:'',weight:'',notes:''});
+  savePRs(); renderPRs();
+};
+renderPRs();
+
+/* ══════════════════════════════════════════
+   CALENDAR
+══════════════════════════════════════════ */
+let calEvents = JSON.parse(localStorage.getItem('dashboard_cal') || '{}');
+let calView = { year: new Date().getFullYear(), month: new Date().getMonth() };
+let calSelectedDate = null;
+
+function saveCalEvents() { localStorage.setItem('dashboard_cal', JSON.stringify(calEvents)); }
+
+function renderCalendar() {
+  const { year, month } = calView;
+  const monthNames = ['January','February','March','April','May','June',
+    'July','August','September','October','November','December'];
+  document.getElementById('cal-month-label').textContent = `${monthNames[month]} ${year}`;
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = '';
+  ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].forEach(d => {
+    const h = document.createElement('div');
+    h.className = 'cal-header'; h.textContent = d;
+    grid.appendChild(h);
+  });
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const daysInPrev = new Date(year, month, 0).getDate();
+  const today = new Date();
+
+  for (let i = 0; i < firstDay; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    const n = document.createElement('div'); n.className='cal-day-num';
+    n.textContent = daysInPrev - firstDay + 1 + i;
+    d.appendChild(n); grid.appendChild(d);
+  }
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day';
+    const ds = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    if (today.getFullYear()===year && today.getMonth()===month && today.getDate()===day)
+      d.classList.add('today');
+    const n = document.createElement('div'); n.className='cal-day-num';
+    n.textContent = day; d.appendChild(n);
+    if (calEvents[ds]) {
+      calEvents[ds].slice(0,3).forEach(ev => {
+        const dot = document.createElement('span');
+        dot.className = 'cal-event-dot'; dot.textContent = ev;
+        d.appendChild(dot);
+      });
+    }
+    d.onclick = () => openCalModal(ds);
+    grid.appendChild(d);
+  }
+
+  const remaining = 42 - firstDay - daysInMonth;
+  for (let i = 1; i <= remaining; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day other-month';
+    const n = document.createElement('div'); n.className='cal-day-num';
+    n.textContent = i; d.appendChild(n); grid.appendChild(d);
+  }
+}
+
+function openCalModal(ds) {
+  calSelectedDate = ds;
+  const [y,m,d] = ds.split('-');
+  const monthNames = ['January','February','March','April','May','June',
+    'July','August','September','October','November','December'];
+  document.getElementById('cal-modal-title').textContent =
+    `${monthNames[parseInt(m)-1]} ${parseInt(d)}, ${y}`;
+  renderCalEvents();
+  document.getElementById('cal-modal').classList.add('open');
+  document.getElementById('cal-event-input').focus();
+}
+
+function renderCalEvents() {
+  const list = document.getElementById('cal-events-list');
+  const evs = calEvents[calSelectedDate] || [];
+  list.innerHTML = '';
+  if (!evs.length) { list.innerHTML = '<p style="color:var(--text3);font-size:.8rem;padding:4px 0">No events yet.</p>'; return; }
+  evs.forEach((ev, i) => {
+    const item = document.createElement('div');
+    item.className = 'cal-event-item';
+    item.innerHTML = `<span>${ev}</span><button class="pr-del" onclick="calEvents['${calSelectedDate}'].splice(${i},1);saveCalEvents();renderCalEvents();renderCalendar()">✕</button>`;
+    list.appendChild(item);
+  });
+}
+
+document.getElementById('cal-modal-add').onclick = () => {
+  const val = document.getElementById('cal-event-input').value.trim();
+  if (!val) return;
+  if (!calEvents[calSelectedDate]) calEvents[calSelectedDate] = [];
+  calEvents[calSelectedDate].push(val);
+  saveCalEvents(); renderCalEvents(); renderCalendar();
+  document.getElementById('cal-event-input').value = '';
+};
+document.getElementById('cal-event-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('cal-modal-add').click();
+});
+document.getElementById('cal-modal-close').onclick = () =>
+  document.getElementById('cal-modal').classList.remove('open');
+document.getElementById('cal-modal').onclick = function(e) {
+  if (e.target === this) this.classList.remove('open');
+};
+document.getElementById('cal-prev').onclick = () => {
+  calView.month--; if (calView.month < 0) { calView.month=11; calView.year--; }
+  renderCalendar();
+};
+document.getElementById('cal-next').onclick = () => {
+  calView.month++; if (calView.month > 11) { calView.month=0; calView.year++; }
+  renderCalendar();
+};
+renderCalendar();
+
+/* ══════════════════════════════════════════
+   DAILY TO-DO
+══════════════════════════════════════════ */
+const TODAY = todayStr();
+let todoData = JSON.parse(localStorage.getItem('dashboard_todo') || '{"date":"","tasks":[]}');
+if (todoData.date !== TODAY) { todoData = {date: TODAY, tasks:[]}; }
+function saveTodo() { localStorage.setItem('dashboard_todo', JSON.stringify(todoData)); }
+
+document.getElementById('todo-date-label').textContent = `Resets daily · ${TODAY}`;
+
+function renderTodo() {
+  const list = document.getElementById('todo-list');
+  list.innerHTML = '';
+  if (!todoData.tasks.length) {
+    list.innerHTML = '<div class="todo-empty">No tasks yet — add one above</div>';
+    return;
+  }
+  todoData.tasks.forEach((task, i) => {
+    const item = document.createElement('div');
+    item.className = 'todo-item' + (task.done ? ' done' : '');
+    const check = document.createElement('div');
+    check.className = 'todo-check' + (task.done ? ' checked' : '');
+    check.onclick = () => {
+      todoData.tasks[i].done = !todoData.tasks[i].done;
+      saveTodo(); renderTodo();
+    };
+    const text = document.createElement('span');
+    text.className = 'todo-text'; text.textContent = task.text;
+    const del = document.createElement('button');
+    del.className = 'todo-del'; del.textContent = '✕';
+    del.onclick = () => { todoData.tasks.splice(i,1); saveTodo(); renderTodo(); };
+    item.append(check, text, del);
+    list.appendChild(item);
+  });
+}
+
+function addTodo() {
+  const val = document.getElementById('todo-input').value.trim();
+  if (!val) return;
+  todoData.tasks.push({text: val, done: false});
+  saveTodo(); renderTodo();
+  document.getElementById('todo-input').value = '';
+}
+
+document.getElementById('btn-add-todo').onclick = addTodo;
+document.getElementById('todo-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addTodo();
+});
+document.getElementById('btn-clear-done').onclick = () => {
+  todoData.tasks = todoData.tasks.filter(t => !t.done);
+  saveTodo(); renderTodo();
+};
+renderTodo();
+
+/* ══════════════════════════════════════════
+   WORD OF THE DAY
+══════════════════════════════════════════ */
+const WORDS = [
+  {word:'Ephemeral',phonetic:'/ɪˈfem.ər.əl/',type:'adjective',def:'Lasting for a very short time; transitory.',example:'"The beauty of the cherry blossoms is ephemeral — here one week, gone the next."'},
+  {word:'Sonder',phonetic:'/ˈsɒn.dər/',type:'noun',def:'The realization that each passerby has a life as vivid and complex as one's own.',example:'"He was hit by a sudden sonder watching the crowd at the station."'},
+  {word:'Luminous',phonetic:'/ˈluː.mɪ.nəs/',type:'adjective',def:'Full of or shedding light; bright or shining.',example:'"Her luminous smile lit up the entire room."'},
+  {word:'Resilience',phonetic:'/rɪˈzɪl.i.əns/',type:'noun',def:'The capacity to recover quickly from difficulties; toughness.',example:'"The team showed remarkable resilience after the setback."'},
+  {word:'Serendipity',phonetic:'/ˌser.ənˈdɪp.ɪ.ti/',type:'noun',def:'The occurrence and development of events by chance in a happy or beneficial way.',example:'"Finding that rare book in a thrift store was pure serendipity."'},
+  {word:'Mellifluous',phonetic:'/məˈlɪf.lu.əs/',type:'adjective',def:'Sweet or musical; pleasant to hear.',example:'"The mellifluous voice of the singer filled the hall."'},
+  {word:'Equanimity',phonetic:'/ˌek.wəˈnɪm.ɪ.ti/',type:'noun',def:'Mental calmness, composure, especially in difficult situations.',example:'"She accepted the news with remarkable equanimity."'},
+  {word:'Limerence',phonetic:'/ˈlɪm.ər.əns/',type:'noun',def:'The state of being infatuated or obsessed with another person.',example:'"His limerence had faded into comfortable affection over the years."'},
+  {word:'Soliloquy',phonetic:'/səˈlɪl.ə.kwi/',type:'noun',def:'An act of speaking one's thoughts aloud, typically when alone.',example:'"Hamlet\'s famous soliloquy begins with \'To be or not to be.\'"'},
+  {word:'Ineffable',phonetic:'/ɪnˈef.ə.bəl/',type:'adjective',def:'Too great or extreme to be expressed or described in words.',example:'"There was an ineffable beauty to the mountain at dawn."'},
+  {word:'Perspicacious',phonetic:'/ˌpɜː.spɪˈkeɪ.ʃəs/',type:'adjective',def:'Having a ready insight into things; shrewd.',example:'"A perspicacious investor, she spotted the trend early."'},
+  {word:'Numinous',phonetic:'/ˈnjuː.mɪ.nəs/',type:'adjective',def:'Having a strong religious or spiritual quality; evoking a sense of the divine.',example:'"Standing in the ancient cathedral gave him a numinous feeling."'},
+  {word:'Hiraeth',phonetic:'/ˈhɪər.aɪθ/',type:'noun',def:'A longing for home or a homesickness for a home you cannot return to.',example:'"Leaving his hometown forever filled him with deep hiraeth."'},
+  {word:'Eudaimonia',phonetic:'/juːˌdaɪˈmoʊ.ni.ə/',type:'noun',def:'A state of being happy, healthy, and prosperous; human flourishing.',example:'"Aristotle believed eudaimonia was the highest human good."'},
+  {word:'Liminal',phonetic:'/ˈlɪm.ɪ.nəl/',type:'adjective',def:'Occupying a transitional position between two states.',example:'"Dawn is a liminal time — neither night nor day."'},
+  {word:'Pulchritudinous',phonetic:'/ˌpʌl.krɪˈtjuː.dɪ.nəs/',type:'adjective',def:'Physically beautiful; attractive.',example:'"The pulchritudinous landscape drew painters from across the country."'},
+  {word:'Petrichor',phonetic:'/ˈpet.rɪ.kɔːr/',type:'noun',def:'A pleasant smell that frequently accompanies the first rain after a long dry spell.',example:'"The petrichor after the summer storm was intoxicating."'},
+  {word:'Susurrus',phonetic:'/suːˈsʌr.əs/',type:'noun',def:'Whispering, murmuring, or rustling.',example:'"A susurrus of leaves accompanied their walk through the forest."'},
+  {word:'Kairos',phonetic:'/ˈkaɪ.rɒs/',type:'noun',def:'A propitious moment for decision or action; the right, critical moment.',example:'"She sensed this was her kairos — the moment to speak up."'},
+  {word:'Sempiternal',phonetic:'/ˌsem.pɪˈtɜː.nəl/',type:'adjective',def:'Eternal and unchanging; everlasting.',example:'"The sempiternal stars have guided sailors for millennia."'},
+  {word:'Lacuna',phonetic:'/ləˈkjuː.nə/',type:'noun',def:'An unfilled space or interval; a gap.',example:'"There was a lacuna in the historical record spanning two decades."'},
+  {word:'Vellichor',phonetic:'/ˈvel.ɪ.kɔːr/',type:'noun',def:'The strange wistfulness of used bookshops.',example:'"He could spend hours in vellichor, lost among the dusty shelves."'},
+  {word:'Adumbrate',phonetic:'/ˈæd.ʌm.breɪt/',type:'verb',def:'To indicate or describe roughly; to overshadow.',example:'"The early paintings adumbrate the style he would perfect later."'},
+  {word:'Fulgent',phonetic:'/ˈfʌl.dʒənt/',type:'adjective',def:'Shining brightly; radiant.',example:'"The fulgent sun broke through after the storm."'},
+  {word:'Sibilant',phonetic:'/ˈsɪb.ɪ.lənt/',type:'adjective',def:'Making or characterized by a hissing sound.',example:'"The sibilant whisper of the wind through the reeds."'},
+  {word:'Tenebrous',phonetic:'/ˈten.ɪ.brəs/',type:'adjective',def:'Dark; shadowy or obscure.',example:'"The tenebrous forest path made navigation treacherous."'},
+  {word:'Alacrity',phonetic:'/əˈlæk.rɪ.ti/',type:'noun',def:'Brisk and cheerful readiness.',example:'"She accepted the challenge with alacrity."'},
+  {word:'Simulacrum',phonetic:'/ˌsɪm.jʊˈleɪ.krəm/',type:'noun',def:'An image or representation of someone or something; an unsatisfactory imitation.',example:'"The theme park was a simulacrum of ancient Rome."'},
+  {word:'Crepuscular',phonetic:'/krɪˈpʌs.kjʊ.lər/',type:'adjective',def:'Of, resembling, or relating to twilight.',example:'"Fireflies are crepuscular creatures, emerging at dusk."'},
+  {word:'Fugacious',phonetic:'/fjuːˈɡeɪ.ʃəs/',type:'adjective',def:'Tending to disappear; fleeting.',example:'"Youth is the most fugacious of gifts."'},
+];
+
+const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 86400000);
+const wotd = WORDS[dayOfYear % WORDS.length];
+document.getElementById('wotd-word').textContent = wotd.word;
+document.getElementById('wotd-phonetic').textContent = wotd.phonetic;
+document.getElementById('wotd-type').textContent = wotd.type;
+document.getElementById('wotd-def').textContent = wotd.def;
+document.getElementById('wotd-example').textContent = wotd.example;
+
+/* ══════════════════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════════════════ */
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
