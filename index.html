@@ -198,6 +198,22 @@ nav{
 .pr-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:1rem;padding:0 4px;transition:color .15s}
 .pr-del:hover{color:var(--red)}
 .sub-title{font-size:.82rem;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin:28px 0 14px}
+.gym-entry{
+  border:1px solid var(--border);border-radius:8px;padding:14px 16px;
+  margin-bottom:8px;background:var(--surface2);
+}
+.gym-entry-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.gym-entry-type{font-weight:600;font-size:.9rem}
+.gym-entry-notes{font-size:.85rem;color:var(--text2);line-height:1.6;white-space:pre-wrap}
+.gym-history-date{
+  font-size:.78rem;font-weight:600;color:var(--text3);text-transform:uppercase;
+  letter-spacing:.5px;margin:18px 0 8px;display:flex;align-items:center;gap:8px;
+}
+.gym-history-date::after{content:'';flex:1;height:1px;background:var(--border)}
+.gym-history-date.today-date{color:var(--green)}
+.gym-empty{color:var(--text3);font-size:.875rem;text-align:center;padding:24px}
+.heatmap-cell.has-log{background:#2ea043}
+.heatmap-cell.has-log.today{border-color:var(--accent)}
 
 /* ── CALENDAR ── */
 .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
@@ -405,7 +421,9 @@ nav{
 <div class="page" id="page-gym">
   <div class="page-inner">
     <div class="page-title">Gym Tracker</div>
-    <div class="card">
+
+    <!-- Stats -->
+    <div class="card" style="margin-bottom:16px">
       <div class="gym-meta">
         <div>
           <div class="gym-stat-val" id="streak-current" style="color:var(--green)">0</div>
@@ -420,26 +438,42 @@ nav{
           <div class="gym-stat-label">Total Days</div>
         </div>
       </div>
-
-      <div class="sub-title">Activity — Past Year</div>
+      <div class="sub-title" style="margin-top:4px">Activity — Past Year</div>
       <div class="heatmap-wrap">
         <div id="heatmap-container"></div>
       </div>
-      <p style="font-size:.73rem;color:var(--text3);margin-top:8px">Click any day to toggle a gym session</p>
+      <p style="font-size:.72rem;color:var(--text3);margin-top:8px">Click any past day to view that session's log</p>
+    </div>
 
-      <div class="sub-title">Personal Records</div>
-      <table class="pr-table" id="pr-table">
-        <thead>
-          <tr>
-            <th>Exercise</th>
-            <th>Weight / Reps</th>
-            <th>Notes</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody id="pr-body"></tbody>
-      </table>
-      <button class="btn" style="margin-top:14px" id="btn-add-pr">+ Add Lift</button>
+    <!-- Log Today -->
+    <div class="card" style="margin-bottom:16px">
+      <div class="sub-title" style="margin-top:0" id="gym-today-title">Log Today's Session</div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <input type="text" class="todo-input" id="gym-type-input" placeholder="Training type — e.g. Push, Pull, Legs, Cardio" />
+        <textarea class="note-editor" id="gym-notes-input" placeholder="Notes — sets, reps, weights, how it felt…" style="min-height:90px;resize:vertical"></textarea>
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn btn-accent" id="btn-log-gym">Add Entry</button>
+        </div>
+      </div>
+      <!-- Today's existing entries -->
+      <div id="gym-today-entries"></div>
+    </div>
+
+    <!-- Session History -->
+    <div class="card">
+      <div class="sub-title" style="margin-top:0">Session History</div>
+      <div id="gym-history"></div>
+    </div>
+  </div>
+</div>
+
+<!-- GYM DAY MODAL -->
+<div class="cal-modal" id="gym-day-modal">
+  <div class="cal-modal-box">
+    <div class="cal-modal-title" id="gym-day-modal-title"></div>
+    <div id="gym-day-modal-body" style="max-height:360px;overflow-y:auto"></div>
+    <div class="cal-modal-actions" style="margin-top:16px">
+      <button class="btn" id="gym-day-modal-close">Close</button>
     </div>
   </div>
 </div>
@@ -550,7 +584,7 @@ const TZ = 'America/New_York';
 function updateClock() {
   const now = new Date();
   document.getElementById('clock').textContent = now.toLocaleTimeString('en-US',{
-    timeZone:TZ, hour:'2-digit', minute:'2-digit', second:'2-digit', hour12:false
+    timeZone:TZ, hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true
   });
   document.getElementById('datestr').textContent = now.toLocaleDateString('en-US',{
     timeZone:TZ, weekday:'long', month:'long', day:'numeric', year:'numeric'
@@ -667,75 +701,175 @@ renderNotes();
 /* ══════════════════════════════════════════
    GYM TRACKER
 ══════════════════════════════════════════ */
-let gymDays=JSON.parse(localStorage.getItem('dashboard_gym')||'[]');
-function saveGym(){ localStorage.setItem('dashboard_gym',JSON.stringify(gymDays)); }
 function dateStr(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
 function todayStr(){ return dateStr(new Date()); }
 
+// gymLog: { 'YYYY-MM-DD': [{id, type, notes}] }
+let gymLog = JSON.parse(localStorage.getItem('dashboard_gymlog') || '{}');
+function saveGymLog(){ localStorage.setItem('dashboard_gymlog', JSON.stringify(gymLog)); }
+function gymDaysWithEntries(){ return Object.keys(gymLog).filter(d => gymLog[d] && gymLog[d].length > 0); }
+
+function fmtGymDate(ds){
+  const [y,m,d] = ds.split('-');
+  return new Date(y, m-1, d).toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+}
+
+/* ── Heatmap ── */
 function buildHeatmap(){
-  const container=document.getElementById('heatmap-container'); container.innerHTML='';
-  const today=new Date(), start=new Date(today);
-  start.setDate(start.getDate()-364);
-  start.setDate(start.getDate()-start.getDay());
-  const wrap=document.createElement('div'); wrap.style.cssText='display:flex;gap:0;align-items:flex-start';
-  const dayCol=document.createElement('div'); dayCol.style.cssText='display:flex;flex-direction:column;gap:3px;margin-right:6px;padding-top:20px';
+  const container = document.getElementById('heatmap-container'); container.innerHTML = '';
+  const activeDays = gymDaysWithEntries();
+  const today = new Date(), start = new Date(today);
+  start.setDate(start.getDate() - 364);
+  start.setDate(start.getDate() - start.getDay());
+
+  const wrap = document.createElement('div'); wrap.style.cssText = 'display:flex;gap:0;align-items:flex-start';
+  const dayCol = document.createElement('div'); dayCol.style.cssText = 'display:flex;flex-direction:column;gap:3px;margin-right:6px;padding-top:20px';
   ['S','M','T','W','T','F','S'].forEach((d,i)=>{
-    const l=document.createElement('div'); l.className='heatmap-day-label'; l.textContent=i%2===1?d:''; dayCol.appendChild(l);
+    const l = document.createElement('div'); l.className = 'heatmap-day-label'; l.textContent = i%2===1?d:''; dayCol.appendChild(l);
   });
   wrap.appendChild(dayCol);
-  const gridWrap=document.createElement('div'); gridWrap.style.cssText='display:flex;flex-direction:column;gap:0';
-  const gridRow=document.createElement('div'); gridRow.style.cssText='display:flex;gap:3px';
-  const mNames=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  let lastM=-1, cursor=new Date(start);
-  while(cursor<=today||cursor.getDay()!==0){
-    const colD=document.createElement('div'); colD.style.cssText='display:flex;flex-direction:column;gap:3px';
-    const mLbl=document.createElement('div'); mLbl.style.cssText='font-size:.62rem;color:rgba(255,255,255,0.22);height:16px;display:flex;align-items:center;width:13px';
-    if(cursor.getMonth()!==lastM){ mLbl.textContent=mNames[cursor.getMonth()]; lastM=cursor.getMonth(); }
-    for(let day=0;day<7;day++){
-      const cd=new Date(cursor); cd.setDate(cursor.getDate()+day);
-      const ds=dateStr(cd), cell=document.createElement('div');
-      cell.className='heatmap-cell'+(gymDays.includes(ds)?' gym-day':'')+(ds===todayStr()?' today':'');
-      cell.title=ds;
-      if(cd>today) cell.style.opacity='0.12';
-      else cell.onclick=()=>{ gymDays.includes(ds)?gymDays=gymDays.filter(x=>x!==ds):gymDays.push(ds); saveGym(); buildHeatmap(); updateStreaks(); };
+
+  const gridRow = document.createElement('div'); gridRow.style.cssText = 'display:flex;gap:3px';
+  const mNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let lastM = -1, cursor = new Date(start);
+
+  while(cursor <= today || cursor.getDay() !== 0){
+    const colD = document.createElement('div'); colD.style.cssText = 'display:flex;flex-direction:column;gap:3px';
+    const mLbl = document.createElement('div'); mLbl.style.cssText = 'font-size:.62rem;color:rgba(255,255,255,0.22);height:16px;display:flex;align-items:center;width:13px';
+    if(cursor.getMonth() !== lastM){ mLbl.textContent = mNames[cursor.getMonth()]; lastM = cursor.getMonth(); }
+
+    for(let day = 0; day < 7; day++){
+      const cd = new Date(cursor); cd.setDate(cursor.getDate() + day);
+      const ds = dateStr(cd);
+      const hasLog = activeDays.includes(ds);
+      const cell = document.createElement('div');
+      cell.className = 'heatmap-cell' + (hasLog ? ' has-log' : '') + (ds === todayStr() ? ' today' : '');
+      cell.title = ds + (hasLog ? ` (${gymLog[ds].length} entr${gymLog[ds].length===1?'y':'ies'})` : '');
+
+      if(cd > today){
+        cell.style.opacity = '0.1';
+      } else if(ds === todayStr()){
+        cell.style.cursor = 'default'; // today is logged via the form below
+        cell.title = 'Today — use the form below to log';
+      } else if(hasLog){
+        cell.onclick = () => openGymDayModal(ds);
+        cell.style.cursor = 'pointer';
+      } else {
+        cell.style.cursor = 'default'; cell.style.opacity = '0.5';
+      }
       colD.appendChild(cell);
     }
-    cursor.setDate(cursor.getDate()+7);
-    const colWrap=document.createElement('div'); colWrap.style.cssText='display:flex;flex-direction:column;gap:3px';
+    cursor.setDate(cursor.getDate() + 7);
+    const colWrap = document.createElement('div'); colWrap.style.cssText = 'display:flex;flex-direction:column;gap:3px';
     colWrap.appendChild(mLbl); colWrap.appendChild(colD); gridRow.appendChild(colWrap);
   }
   wrap.appendChild(gridRow); container.appendChild(wrap);
 }
 
+/* ── Day view modal ── */
+function openGymDayModal(ds){
+  const entries = gymLog[ds] || [];
+  document.getElementById('gym-day-modal-title').textContent = fmtGymDate(ds);
+  const body = document.getElementById('gym-day-modal-body'); body.innerHTML = '';
+  if(!entries.length){ body.innerHTML = '<p style="color:var(--text3);font-size:.85rem;padding:8px 0">No entries logged for this day.</p>'; }
+  entries.forEach(e => {
+    const el = document.createElement('div'); el.className = 'gym-entry';
+    el.innerHTML = `<div class="gym-entry-header"><span class="gym-entry-type">${e.type||'Session'}</span></div><div class="gym-entry-notes">${e.notes||'—'}</div>`;
+    body.appendChild(el);
+  });
+  document.getElementById('gym-day-modal').classList.add('open');
+}
+document.getElementById('gym-day-modal-close').onclick = () => document.getElementById('gym-day-modal').classList.remove('open');
+document.getElementById('gym-day-modal').onclick = function(e){ if(e.target===this) this.classList.remove('open'); };
+
+/* ── Streaks ── */
 function updateStreaks(){
-  const sorted=[...gymDays].sort();
-  let current=0, longest=0, run=0, prev=null;
-  const td=new Date(), check=new Date(td);
+  const active = gymDaysWithEntries().sort();
+  let current = 0, longest = 0, run = 0, prev = null;
+  const check = new Date();
   while(true){
-    if(gymDays.includes(dateStr(check))){ current++; check.setDate(check.getDate()-1); }
-    else if(dateStr(check)===todayStr()){ check.setDate(check.getDate()-1); }
+    const ds = dateStr(check);
+    if(active.includes(ds)){ current++; check.setDate(check.getDate()-1); }
+    else if(ds === todayStr()){ check.setDate(check.getDate()-1); }
     else break;
   }
-  sorted.forEach(ds=>{ run=prev&&(new Date(ds)-new Date(prev))/86400000===1?run+1:1; longest=Math.max(longest,run); prev=ds; });
-  document.getElementById('streak-current').textContent=current;
-  document.getElementById('streak-longest').textContent=longest;
-  document.getElementById('gym-total').textContent=gymDays.length;
+  active.forEach(ds => { run = prev && (new Date(ds)-new Date(prev))/86400000===1 ? run+1 : 1; longest = Math.max(longest,run); prev=ds; });
+  document.getElementById('streak-current').textContent = current;
+  document.getElementById('streak-longest').textContent = longest;
+  document.getElementById('gym-total').textContent = active.length;
 }
 
-buildHeatmap(); updateStreaks();
-
-let prs=JSON.parse(localStorage.getItem('dashboard_prs')||'[]');
-function savePRs(){ localStorage.setItem('dashboard_prs',JSON.stringify(prs)); }
-function renderPRs(){
-  const tbody=document.getElementById('pr-body'); tbody.innerHTML='';
-  prs.forEach((pr,i)=>{
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td><input value="${pr.exercise||''}" placeholder="e.g. Bench Press" onchange="prs[${i}].exercise=this.value;savePRs()"/></td><td><input value="${pr.weight||''}" placeholder="e.g. 225 lbs × 5" onchange="prs[${i}].weight=this.value;savePRs()" style="width:130px"/></td><td><input value="${pr.notes||''}" placeholder="Notes" onchange="prs[${i}].notes=this.value;savePRs()"/></td><td><button class="pr-del" onclick="prs.splice(${i},1);savePRs();renderPRs()">✕</button></td>`;
-    tbody.appendChild(tr);
+/* ── Today's log entries (shown below the form) ── */
+function renderTodayEntries(){
+  const today = todayStr();
+  const entries = gymLog[today] || [];
+  const container = document.getElementById('gym-today-entries'); container.innerHTML = '';
+  if(!entries.length) return;
+  const sep = document.createElement('div'); sep.className='sub-title'; sep.style.marginTop='20px'; sep.textContent = "Today's Entries"; container.appendChild(sep);
+  entries.forEach((e, i) => {
+    const el = document.createElement('div'); el.className = 'gym-entry';
+    el.innerHTML = `
+      <div class="gym-entry-header">
+        <span class="gym-entry-type">${e.type||'Session'}</span>
+        <button class="pr-del" title="Delete" onclick="deleteTodayEntry(${i})">✕</button>
+      </div>
+      <div class="gym-entry-notes">${e.notes||''}</div>`;
+    container.appendChild(el);
   });
 }
-document.getElementById('btn-add-pr').onclick=()=>{ prs.push({exercise:'',weight:'',notes:''}); savePRs(); renderPRs(); };
-renderPRs();
+
+function deleteTodayEntry(i){
+  const today = todayStr();
+  gymLog[today].splice(i, 1);
+  if(!gymLog[today].length) delete gymLog[today];
+  saveGymLog(); renderTodayEntries(); buildHeatmap(); updateStreaks(); renderGymHistory();
+}
+
+/* ── Add today's entry ── */
+document.getElementById('btn-log-gym').onclick = () => {
+  const type  = document.getElementById('gym-type-input').value.trim();
+  const notes = document.getElementById('gym-notes-input').value.trim();
+  if(!type && !notes) return;
+  const today = todayStr();
+  if(!gymLog[today]) gymLog[today] = [];
+  gymLog[today].push({ id: Date.now(), type, notes });
+  saveGymLog(); renderTodayEntries(); buildHeatmap(); updateStreaks(); renderGymHistory();
+  document.getElementById('gym-type-input').value = '';
+  document.getElementById('gym-notes-input').value = '';
+};
+
+/* ── Session History (past days, newest first) ── */
+function renderGymHistory(){
+  const container = document.getElementById('gym-history'); container.innerHTML = '';
+  const today = todayStr();
+  const days = gymDaysWithEntries().filter(d => d !== today).sort().reverse();
+  if(!days.length){
+    container.innerHTML = '<div class="gym-empty">No past sessions logged yet.</div>';
+    return;
+  }
+  days.forEach(ds => {
+    const lbl = document.createElement('div'); lbl.className = 'gym-history-date'; lbl.textContent = fmtGymDate(ds); container.appendChild(lbl);
+    gymLog[ds].forEach((e, i) => {
+      const el = document.createElement('div'); el.className = 'gym-entry';
+      el.innerHTML = `
+        <div class="gym-entry-header">
+          <span class="gym-entry-type">${e.type||'Session'}</span>
+          <button class="pr-del" title="Delete" onclick="deleteHistoryEntry('${ds}',${i})">✕</button>
+        </div>
+        <div class="gym-entry-notes">${e.notes||''}</div>`;
+      container.appendChild(el);
+    });
+  });
+}
+
+function deleteHistoryEntry(ds, i){
+  gymLog[ds].splice(i, 1);
+  if(!gymLog[ds].length) delete gymLog[ds];
+  saveGymLog(); buildHeatmap(); updateStreaks(); renderGymHistory();
+}
+
+/* ── Init ── */
+buildHeatmap(); updateStreaks(); renderTodayEntries(); renderGymHistory();
 
 /* ══════════════════════════════════════════
    CALENDAR
