@@ -148,32 +148,70 @@ nav{
 .btn-danger:hover{background:rgba(247,129,102,0.2)}
 
 /* ── NOTES ── */
-.notes-tabs{display:flex;gap:8px;flex-wrap:wrap}
-.note-tab{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:8px;padding:6px 14px;font-size:.8rem;font-family:var(--font);
-  color:var(--text2);cursor:pointer;transition:all .15s;position:relative;
+.notes-layout{display:flex;height:calc(100vh - var(--nav-h));overflow:hidden}
+.notes-sidebar{
+  width:260px;flex-shrink:0;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow:hidden;background:rgba(8,12,20,0.4);
 }
-.note-tab.active{background:var(--surface2);color:var(--text);border-color:rgba(255,255,255,0.14)}
-.note-tab .del-tab{
-  display:none;position:absolute;right:-6px;top:-6px;
-  background:#2a2a2a;border:none;border-radius:50%;width:16px;height:16px;
-  font-size:10px;align-items:center;justify-content:center;cursor:pointer;color:#ccc;
+.notes-sidebar-top{
+  padding:12px 14px;border-bottom:1px solid var(--border);
+  display:flex;flex-direction:column;gap:8px;
 }
-.note-tab:hover .del-tab{display:flex}
-.btn-add-note{
-  background:transparent;border:1px dashed var(--border);
-  border-radius:8px;padding:6px 14px;font-size:.8rem;font-family:var(--font);
-  color:var(--text3);cursor:pointer;transition:all .15s;
-}
-.btn-add-note:hover{border-color:var(--text2);color:var(--text2)}
-.note-editor{
+.notes-search{
   width:100%;background:var(--surface2);border:1px solid var(--border);
-  border-radius:10px;padding:16px;color:var(--text);font-family:var(--font);
-  font-size:.9rem;resize:none;line-height:1.7;outline:none;transition:border-color .2s;
+  border-radius:8px;padding:7px 12px;color:var(--text);font-family:var(--font);
+  font-size:.82rem;outline:none;transition:border-color .2s;
 }
-.note-editor:focus{border-color:rgba(88,166,255,0.3)}
-.note-saved{font-size:.8rem;color:var(--green);opacity:0;transition:opacity .3s}
+.notes-search:focus{border-color:rgba(88,166,255,0.3)}
+.notes-search::placeholder{color:var(--text3)}
+.notes-list-scroll{flex:1;overflow-y:auto}
+.note-list-item{
+  padding:12px 14px;border-bottom:1px solid rgba(255,255,255,0.04);
+  cursor:pointer;transition:background .12s;
+}
+.note-list-item:hover{background:var(--surface)}
+.note-list-item.active{background:var(--surface2)}
+.nli-title{font-size:.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:3px}
+.nli-row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:2px}
+.nli-date{font-size:.68rem;color:var(--text3);white-space:nowrap}
+.nli-preview{font-size:.76rem;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notes-editor-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.notes-toolbar{
+  display:flex;align-items:center;gap:1px;
+  padding:6px 12px;border-bottom:1px solid var(--border);
+  flex-wrap:wrap;background:rgba(8,12,20,0.5);flex-shrink:0;
+}
+.tb{
+  background:none;border:none;color:var(--text2);cursor:pointer;
+  padding:5px 7px;border-radius:5px;font-family:var(--font);font-size:.82rem;
+  transition:all .12s;min-width:28px;text-align:center;line-height:1;
+}
+.tb:hover{background:var(--surface2);color:var(--text)}
+.tb-sep{width:1px;height:18px;background:var(--border);margin:0 4px;flex-shrink:0}
+.tb-del{margin-left:auto;color:var(--text3)}
+.tb-del:hover{color:var(--red)}
+.notes-meta-bar{
+  padding:5px 20px;font-size:.7rem;color:var(--text3);
+  border-bottom:1px solid rgba(255,255,255,0.03);flex-shrink:0;
+}
+.note-rich-editor{
+  flex:1;padding:24px 28px;color:var(--text);font-family:var(--font);
+  font-size:.95rem;line-height:1.8;outline:none;overflow-y:auto;
+  caret-color:var(--accent);
+}
+.note-rich-editor:empty:before{content:attr(data-placeholder);color:var(--text3);pointer-events:none;display:block}
+.note-rich-editor h1{font-size:1.7rem;font-weight:700;margin:4px 0;line-height:1.2}
+.note-rich-editor h2{font-size:1.25rem;font-weight:600;margin:4px 0}
+.note-rich-editor h3{font-size:1.05rem;font-weight:600;margin:4px 0;color:var(--text2)}
+.note-rich-editor ul,.note-rich-editor ol{padding-left:22px;margin:2px 0}
+.note-rich-editor li{margin:2px 0}
+.note-rich-editor p{margin:2px 0}
+.note-rich-editor blockquote{border-left:3px solid var(--accent);padding-left:12px;color:var(--text2);margin:4px 0}
+.notes-empty-panel{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text3);gap:10px}
+@media(max-width:640px){
+  .notes-sidebar{width:200px}
+  .note-rich-editor{padding:16px}
+}
 
 /* ── GYM ── */
 .gym-meta{display:flex;gap:32px;margin-bottom:28px;flex-wrap:wrap}
@@ -457,18 +495,51 @@ nav{
 
 <!-- ═══════════ NOTES ═══════════ -->
 <div class="page" id="page-notes">
-  <div class="page-inner">
-    <div class="page-title">Notes</div>
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-        <div class="notes-tabs" id="notes-tabs"></div>
-        <button class="btn-add-note" id="btn-add-note">+ New</button>
+  <div class="notes-layout">
+
+    <!-- Sidebar -->
+    <div class="notes-sidebar">
+      <div class="notes-sidebar-top">
+        <button class="btn btn-accent" id="btn-new-note" style="width:100%;font-size:.82rem;padding:7px 12px">+ New Note</button>
+        <input type="search" class="notes-search" id="notes-search" placeholder="Search notes…" />
       </div>
-      <textarea class="note-editor" id="note-editor" placeholder="Start typing…" style="height:calc(100vh - 320px);min-height:200px"></textarea>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
-        <span class="note-saved" id="note-saved">Saved ✓</span>
-        <button class="btn btn-accent" id="btn-save-note">Save</button>
+      <div class="notes-list-scroll" id="notes-list"></div>
+    </div>
+
+    <!-- Editor panel -->
+    <div class="notes-editor-wrap">
+
+      <!-- Empty state -->
+      <div class="notes-empty-panel" id="notes-empty-panel">
+        <div style="font-size:2.5rem;opacity:.3">📝</div>
+        <div style="font-size:.9rem">Select a note or create a new one</div>
+        <button class="btn btn-accent" onclick="newNote()" style="margin-top:4px">+ New Note</button>
       </div>
+
+      <!-- Active editor (hidden until a note is open) -->
+      <div id="notes-active" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+        <div class="notes-toolbar">
+          <button class="tb" onclick="nfmt('bold')"          title="Bold"><b>B</b></button>
+          <button class="tb" onclick="nfmt('italic')"        title="Italic"><i>I</i></button>
+          <button class="tb" onclick="nfmt('underline')"     title="Underline"><u>U</u></button>
+          <button class="tb" onclick="nfmt('strikeThrough')" title="Strikethrough"><s>S</s></button>
+          <div class="tb-sep"></div>
+          <button class="tb" onclick="nblock('h1')"  title="Heading 1">H1</button>
+          <button class="tb" onclick="nblock('h2')"  title="Heading 2">H2</button>
+          <button class="tb" onclick="nblock('h3')"  title="Heading 3">H3</button>
+          <button class="tb" onclick="nblock('p')"   title="Paragraph">¶</button>
+          <div class="tb-sep"></div>
+          <button class="tb" onclick="nfmt('insertUnorderedList')" title="Bullet list">• ≡</button>
+          <button class="tb" onclick="nfmt('insertOrderedList')"   title="Numbered list">1. ≡</button>
+          <button class="tb" onclick="nfmt('indent')"              title="Indent">→</button>
+          <div class="tb-sep"></div>
+          <button class="tb" onclick="nblock('blockquote')" title="Quote">" "</button>
+          <button class="tb tb-del" onclick="deleteCurrentNote()" title="Delete note">🗑</button>
+        </div>
+        <div class="notes-meta-bar" id="notes-meta-bar">Last edited —</div>
+        <div class="note-rich-editor" id="note-rich-editor" contenteditable="true" data-placeholder="Start writing…" spellcheck="true"></div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -751,41 +822,130 @@ updateWeatherLabel(weatherLoc.label);
 fetchWeather(weatherLoc.lat,weatherLoc.lon);
 
 /* ══════════════════════════════════════════
-   NOTES
+   NOTES  (v2 — rich text, library)
 ══════════════════════════════════════════ */
-let notes = JSON.parse(localStorage.getItem('dashboard_notes')||'null') || [{id:1,title:'Quick Notes',content:''}];
-let activeNote = notes[0].id;
-function saveNotes(){ localStorage.setItem('dashboard_notes',JSON.stringify(notes)); }
-function getNoteById(id){ return notes.find(n=>n.id===id); }
-function renderNotes(){
-  const tabs=document.getElementById('notes-tabs'); tabs.innerHTML='';
-  notes.forEach(n=>{
-    const tab=document.createElement('button');
-    tab.className='note-tab'+(n.id===activeNote?' active':'');
-    tab.textContent=n.title;
-    tab.onclick=()=>{ activeNote=n.id; renderNotes(); };
-    const del=document.createElement('button'); del.className='del-tab'; del.textContent='×';
-    del.onclick=e=>{ e.stopPropagation(); if(notes.length===1) return; notes=notes.filter(x=>x.id!==n.id); activeNote=notes[0].id; saveNotes(); renderNotes(); };
-    tab.appendChild(del); tabs.appendChild(tab);
-  });
-  const note=getNoteById(activeNote);
-  document.getElementById('note-editor').value=note?note.content:'';
+let allNotes = JSON.parse(localStorage.getItem('dashboard_notes_v2') || '[]');
+
+// Migrate old plain-text notes on first run
+(()=>{
+  const old = JSON.parse(localStorage.getItem('dashboard_notes') || 'null');
+  if(old && old.length && !allNotes.length){
+    allNotes = old.map(n=>({
+      id: n.id, content: n.content ? '<p>'+n.content.replace(/\n\n/g,'</p><p>').replace(/\n/g,'<br>')+'</p>' : '',
+      createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+    }));
+    persistNotes();
+  }
+})();
+
+let activeNoteId = allNotes.length ? allNotes[0].id : null;
+let noteSearchQ = '';
+
+function persistNotes(){ localStorage.setItem('dashboard_notes_v2', JSON.stringify(allNotes)); }
+
+function notePlainText(note){
+  const t = document.createElement('div'); t.innerHTML = note.content || '';
+  return (t.textContent || t.innerText || '').replace(/\s+/g,' ').trim();
 }
-document.getElementById('btn-add-note').onclick=()=>{
-  const title=prompt('Note name:','Untitled'); if(!title) return;
-  const id=Date.now(); notes.push({id,title,content:''}); activeNote=id; saveNotes(); renderNotes();
-};
-let saveTO;
-document.getElementById('note-editor').addEventListener('input',()=>{
-  const n=getNoteById(activeNote); if(n) n.content=document.getElementById('note-editor').value;
-  clearTimeout(saveTO); saveTO=setTimeout(()=>{ saveNotes(); showSaved(); },700);
+function noteTitle(note){ return notePlainText(note).split(/\n/)[0].substring(0,60) || 'Untitled'; }
+function notePreview(note){ const t = notePlainText(note); const after = t.indexOf(' ',40); return after>0 ? t.substring(after+1,after+80) : ''; }
+
+function noteRelDate(iso){
+  const d = new Date(iso), now = new Date();
+  const toDay = new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  const yesterday = new Date(toDay); yesterday.setDate(yesterday.getDate()-1);
+  const weekAgo   = new Date(toDay); weekAgo.setDate(weekAgo.getDate()-6);
+  if(d >= toDay)      return d.toLocaleTimeString('en-US',{timeZone:TZ,hour:'numeric',minute:'2-digit',hour12:true});
+  if(d >= yesterday)  return 'Yesterday';
+  if(d >= weekAgo)    return d.toLocaleDateString('en-US',{timeZone:TZ,weekday:'long'});
+  return d.toLocaleDateString('en-US',{timeZone:TZ,month:'short',day:'numeric',year:'numeric'});
+}
+
+function renderNotesList(){
+  const container = document.getElementById('notes-list'); container.innerHTML='';
+  const q = noteSearchQ.toLowerCase();
+  const visible = q
+    ? allNotes.filter(n => noteTitle(n).toLowerCase().includes(q) || notePlainText(n).toLowerCase().includes(q))
+    : allNotes;
+  if(!visible.length){
+    container.innerHTML='<div style="padding:20px 14px;color:var(--text3);font-size:.8rem">No notes found</div>';
+    return;
+  }
+  visible.forEach(n => {
+    const el = document.createElement('div');
+    el.className = 'note-list-item' + (n.id===activeNoteId ? ' active' : '');
+    el.innerHTML = `<div class="nli-title">${noteTitle(n)}</div>
+      <div class="nli-row"><span class="nli-date">${noteRelDate(n.updatedAt)}</span></div>
+      <div class="nli-preview">${notePreview(n)}</div>`;
+    el.onclick = () => openNote(n.id);
+    container.appendChild(el);
+  });
+}
+
+function openNote(id){
+  activeNoteId = id;
+  const note = allNotes.find(n=>n.id===id); if(!note) return;
+  document.getElementById('notes-empty-panel').style.display = 'none';
+  const activeEl = document.getElementById('notes-active');
+  activeEl.style.display = 'flex';
+  const editor = document.getElementById('note-rich-editor');
+  editor.innerHTML = note.content || '';
+  document.getElementById('notes-meta-bar').textContent = `Last edited ${noteRelDate(note.updatedAt)}`;
+  renderNotesList();
+  // place cursor at end
+  const range = document.createRange(), sel = window.getSelection();
+  range.selectNodeContents(editor); range.collapse(false);
+  sel.removeAllRanges(); sel.addRange(range);
+  editor.focus();
+}
+
+function newNote(){
+  const note = { id: Date.now(), content: '', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  allNotes.unshift(note); persistNotes();
+  openNote(note.id); renderNotesList();
+}
+
+function deleteCurrentNote(){
+  if(!activeNoteId || !confirm('Delete this note?')) return;
+  allNotes = allNotes.filter(n=>n.id!==activeNoteId);
+  persistNotes();
+  activeNoteId = allNotes.length ? allNotes[0].id : null;
+  if(activeNoteId){ openNote(activeNoteId); }
+  else {
+    document.getElementById('notes-empty-panel').style.display='flex';
+    document.getElementById('notes-active').style.display='none';
+  }
+  renderNotesList();
+}
+
+// Auto-save
+let noteSaveTO;
+document.getElementById('note-rich-editor').addEventListener('input', ()=>{
+  clearTimeout(noteSaveTO);
+  noteSaveTO = setTimeout(()=>{
+    const note = allNotes.find(n=>n.id===activeNoteId); if(!note) return;
+    note.content = document.getElementById('note-rich-editor').innerHTML;
+    note.updatedAt = new Date().toISOString();
+    // keep most-recently-edited at top
+    allNotes = [note, ...allNotes.filter(n=>n.id!==activeNoteId)];
+    persistNotes();
+    document.getElementById('notes-meta-bar').textContent = `Last edited ${noteRelDate(note.updatedAt)}`;
+    renderNotesList();
+  }, 600);
 });
-document.getElementById('btn-save-note').onclick=()=>{
-  const n=getNoteById(activeNote); if(n) n.content=document.getElementById('note-editor').value;
-  saveNotes(); showSaved();
-};
-function showSaved(){ const s=document.getElementById('note-saved'); s.style.opacity='1'; setTimeout(()=>s.style.opacity='0',1500); }
-renderNotes();
+
+// Formatting helpers (execCommand — still universally supported for contenteditable)
+function nfmt(cmd){ document.execCommand(cmd,false,null); document.getElementById('note-rich-editor').focus(); }
+function nblock(tag){ document.execCommand('formatBlock',false,tag); document.getElementById('note-rich-editor').focus(); }
+
+// Search
+document.getElementById('notes-search').addEventListener('input', e=>{ noteSearchQ=e.target.value; renderNotesList(); });
+document.getElementById('btn-new-note').onclick = newNote;
+
+// Init
+renderNotesList();
+if(activeNoteId) openNote(activeNoteId);
+else { document.getElementById('notes-empty-panel').style.display='flex'; document.getElementById('notes-active').style.display='none'; }
 
 /* ══════════════════════════════════════════
    GYM TRACKER
